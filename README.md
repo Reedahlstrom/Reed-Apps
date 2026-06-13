@@ -12,8 +12,8 @@ synced between the two trip leaders.
 - **Vite + React 19 + TypeScript**
 - **Tailwind CSS v4** — alpine / Patagonia design system (`src/index.css`)
 - **Zustand** — single source of truth, persisted to `localStorage`, offline-first
-- **Supabase (Postgres)** — magic-link auth + realtime cross-device sync
-- **Hosting:** GitHub Pages (`HashRouter`, base `/Reed-Apps/`)
+- **Supabase (Postgres)** — email+password auth + invite-based trip sharing + realtime sync
+- **Hosting:** Cloudflare Pages (`BrowserRouter`, root base, `_redirects` SPA fallback). Live: https://reed-apps.pages.dev → supergoodtripleaders.us
 - Icons: `lucide-react` (no emojis). Motion: `framer-motion`.
 
 ## Develop
@@ -28,15 +28,26 @@ node scripts/shot.mjs "/#/trip" dash   # mobile screenshot via local Chrome
 
 ## Supabase
 
-1. Create the schema: open Supabase → SQL Editor → paste `supabase/migrations/0001_init.sql` → Run.
-2. Add both leaders' emails to the `allowed_emails` table (the SQL seeds Reed's).
-3. Put the project URL + **publishable** (anon) key in `.env.local` (see `.env.example`).
-4. The app runs fully offline until those are set; once present it syncs live.
+1. SQL Editor → run `supabase/migrations/0001_init.sql` (trips + membership + invites + realtime).
+2. Authentication → Providers → Email → turn **OFF "Confirm email"** (so signup logs straight in).
+3. Project URL + **publishable** (anon) key go in `.env.local` (see `.env.example`) for local builds.
+
+Sharing model: a leader creates a trip → **Settings → Create invite link** → sends it to a
+co-leader, who signs in and joins the same trip (membership enforced by RLS). The app runs
+fully offline until Supabase is set up; once present it syncs live across devices.
 
 The whole data model and feature map lives in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
-## Deploy
+## Deploy (Cloudflare Pages)
+
+The Pages project is Git-connected with **no build command**, so the built `dist/` is
+committed and served directly. To ship a change:
 
 ```bash
-npm run deploy   # builds and publishes dist/ to the gh-pages branch
+npm run build      # rebuild dist/
+git add -A && git commit -m "..."   # include dist/
+git push           # Cloudflare auto-deploys
 ```
+
+(If you later set the Pages build command to `npm run build` + output `dist`, you can
+stop committing `dist/` and add `VITE_SUPABASE_*` as project env vars instead.)
