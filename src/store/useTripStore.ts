@@ -77,6 +77,8 @@ interface TripStore extends AppData {
   updateTripMeta: (patch: Partial<Trip['meta']>) => void
   deleteTrip: (id: string) => void
   setOnboarded: (v: boolean) => void
+  /** Merge a trip received from another device (newer-wins). */
+  applyRemoteTrip: (trip: Trip) => void
 
   // people
   addPerson: (name: string, role: Role) => void
@@ -193,6 +195,14 @@ export const useTripStore = create<TripStore>()(
           return { trips, activeTripId, rev: s.rev + 1 }
         }),
       setOnboarded: (v) => set((s) => mutateActive(s, (t) => void (t.onboarded = v))),
+      applyRemoteTrip: (incoming) =>
+        set((s) => {
+          const existing = s.trips.find((t) => t.id === incoming.id)
+          if (existing && existing.updatedAt >= incoming.updatedAt) return {}
+          const shaped = ensureTripShape(incoming)
+          const trips = existing ? s.trips.map((t) => (t.id === incoming.id ? shaped : t)) : [...s.trips, shaped]
+          return { trips, activeTripId: s.activeTripId ?? shaped.id, rev: s.rev + 1 }
+        }),
 
       /* people */
       addPerson: (name, role) =>
