@@ -11,6 +11,8 @@ import { MeetingsPage } from '@/pages/MeetingsPage'
 import { NotesPage } from '@/pages/NotesPage'
 import { RoomsPage } from '@/pages/RoomsPage'
 import { GroupsPage } from '@/pages/GroupsPage'
+import { CommitteesPage } from '@/pages/CommitteesPage'
+import { DevotionalsPage } from '@/pages/DevotionalsPage'
 import { PeoplePage } from '@/pages/PeoplePage'
 import { SettingsPage } from '@/pages/SettingsPage'
 import { RequireOnboarded } from '@/components/RequireOnboarded'
@@ -39,6 +41,8 @@ export function App() {
           <Route path="notes" element={<NotesPage />} />
           <Route path="rooms" element={<RoomsPage />} />
           <Route path="groups" element={<GroupsPage />} />
+          <Route path="committees" element={<CommitteesPage />} />
+          <Route path="devotionals" element={<DevotionalsPage />} />
           <Route path="people" element={<PeoplePage />} />
           <Route path="settings" element={<SettingsPage />} />
         </Route>

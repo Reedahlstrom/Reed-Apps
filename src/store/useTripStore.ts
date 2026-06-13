@@ -2,6 +2,10 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type {
   AppData,
+  Briefing,
+  Committee,
+  DevoTime,
+  Devotional,
   FollowUp,
   FoodDay,
   GroupSet,
@@ -36,9 +40,25 @@ function newTrip(name: string, start: string, end: string, destination: string):
     roomPlans: [],
     groupSets: [],
     poopNights: [],
+    committees: [],
+    devotionals: [],
+    briefing: { vision: '', rules: '', expectations: '' },
     onboarded: false,
     createdAt: now,
     updatedAt: now,
+  }
+}
+
+/** Backfill fields added after a trip was first created (persist migration). */
+function ensureTripShape(t: Trip): Trip {
+  return {
+    ...t,
+    committees: t.committees ?? [],
+    devotionals: t.devotionals ?? [],
+    briefing: t.briefing ?? { vision: '', rules: '', expectations: '' },
+    roomPlans: t.roomPlans ?? [],
+    groupSets: t.groupSets ?? [],
+    poopNights: t.poopNights ?? [],
   }
 }
 
@@ -111,6 +131,21 @@ interface TripStore extends AppData {
   // poop
   setPoopNight: (date: string, notPooped: string[]) => void
   togglePoop: (date: string, personId: string) => void
+
+  // committees
+  addCommittee: (name: string, purpose: string) => void
+  updateCommittee: (id: string, patch: Partial<Pick<Committee, 'name' | 'purpose'>>) => void
+  removeCommittee: (id: string) => void
+  toggleCommitteeMember: (id: string, personId: string) => void
+  addCommitteeNote: (id: string, text: string) => void
+  removeCommitteeNote: (id: string, noteId: string) => void
+
+  // devotionals + briefing
+  addDevotional: (time: DevoTime) => string
+  updateDevotional: (id: string, patch: Partial<Devotional>) => void
+  removeDevotional: (id: string) => void
+  toggleDevotionalDone: (id: string) => void
+  setBriefing: (patch: Partial<Briefing>) => void
 }
 
 /* ---------------- mutation helper ---------------- */
@@ -491,13 +526,89 @@ export const useTripStore = create<TripStore>()(
               : [...night.notPooped, personId]
           }),
         ),
+
+      /* committees */
+      addCommittee: (name, purpose) =>
+        set((s) =>
+          mutateActive(s, (t) => {
+            t.committees.push({ id: uid('cm'), name: name.trim() || 'Committee', purpose: purpose.trim(), memberIds: [], notes: [], createdAt: new Date().toISOString() })
+          }),
+        ),
+      updateCommittee: (id, patch) =>
+        set((s) =>
+          mutateActive(s, (t) => {
+            const c = t.committees.find((x) => x.id === id)
+            if (c) Object.assign(c, patch)
+          }),
+        ),
+      removeCommittee: (id) =>
+        set((s) => mutateActive(s, (t) => void (t.committees = t.committees.filter((c) => c.id !== id)))),
+      toggleCommitteeMember: (id, personId) =>
+        set((s) =>
+          mutateActive(s, (t) => {
+            const c = t.committees.find((x) => x.id === id)
+            if (c) c.memberIds = c.memberIds.includes(personId) ? c.memberIds.filter((x) => x !== personId) : [...c.memberIds, personId]
+          }),
+        ),
+      addCommitteeNote: (id, text) =>
+        set((s) =>
+          mutateActive(s, (t) => {
+            const c = t.committees.find((x) => x.id === id)
+            if (c && text.trim()) c.notes.unshift({ id: uid('cn'), text: text.trim(), createdAt: new Date().toISOString() })
+          }),
+        ),
+      removeCommitteeNote: (id, noteId) =>
+        set((s) =>
+          mutateActive(s, (t) => {
+            const c = t.committees.find((x) => x.id === id)
+            if (c) c.notes = c.notes.filter((n) => n.id !== noteId)
+          }),
+        ),
+
+      /* devotionals + briefing */
+      addDevotional: (time) => {
+        const id = uid('dv')
+        set((s) =>
+          mutateActive(s, (t) => {
+            const now = new Date().toISOString()
+            t.devotionals.push({ id, time, title: '', giver: '', scriptures: [], ideas: '', done: false, createdAt: now, updatedAt: now })
+          }),
+        )
+        return id
+      },
+      updateDevotional: (id, patch) =>
+        set((s) =>
+          mutateActive(s, (t) => {
+            const d = t.devotionals.find((x) => x.id === id)
+            if (d) Object.assign(d, patch, { updatedAt: new Date().toISOString() })
+          }),
+        ),
+      removeDevotional: (id) =>
+        set((s) => mutateActive(s, (t) => void (t.devotionals = t.devotionals.filter((d) => d.id !== id)))),
+      toggleDevotionalDone: (id) =>
+        set((s) =>
+          mutateActive(s, (t) => {
+            const d = t.devotionals.find((x) => x.id === id)
+            if (d) d.done = !d.done
+          }),
+        ),
+      setBriefing: (patch) =>
+        set((s) => mutateActive(s, (t) => void Object.assign(t.briefing, patch))),
     }),
     {
       name: 'reed-apps-trip-store',
-      version: 1,
+      version: 2,
+      migrate: (persisted) => {
+        const s = persisted as AppData
+        if (s?.trips) s.trips = s.trips.map(ensureTripShape)
+        return s
+      },
       onRehydrateStorage: () => (state) => {
+        if (!state) return
+        // Backfill any fields added since the trip was created.
+        state.trips = state.trips.map(ensureTripShape)
         // First run: seed a default Trip 1 so the app always has an active trip.
-        if (state && state.trips.length === 0) {
+        if (state.trips.length === 0) {
           const trip = defaultTrip()
           state.trips = [trip]
           state.activeTripId = trip.id

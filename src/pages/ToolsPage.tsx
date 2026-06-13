@@ -10,6 +10,8 @@ import {
   Users2,
   Settings,
   ChevronRight,
+  Shield,
+  BookOpen,
   type LucideIcon,
 } from 'lucide-react'
 import { PageHeader } from '@/components/PageHeader'
@@ -29,6 +31,8 @@ const TOOLS: Tool[] = [
   { to: '/trip/meetings', label: '2-on-1 Meetings', desc: 'Who still needs theirs, notes & follow-ups', icon: MessagesSquare, count: (t) => { const p = t?.meetings.filter((m) => m.status !== 'done').length; return p ? `${p} to go` : undefined } },
   { to: '/trip/rooms', label: 'Room Assignments', desc: 'Beds, occupants, mid-trip switch', icon: BedDouble },
   { to: '/trip/groups', label: 'Groups', desc: 'Auto-balanced random groups', icon: Boxes, count: (t) => (t?.groupSets.length ? `${t.groupSets.length} sets` : undefined) },
+  { to: '/trip/committees', label: 'Committees', desc: 'Crews, responsibilities & notes', icon: Shield, count: (t) => (t?.committees.length ? `${t.committees.length}` : undefined) },
+  { to: '/trip/devotionals', label: 'Devotionals', desc: 'Briefing, morning & night devos', icon: BookOpen, count: (t) => (t?.devotionals.length ? `${t.devotionals.length}` : undefined) },
   { to: '/trip/poop', label: 'Health Tracker', desc: 'Daily bowel-movement check', icon: Activity },
   { to: '/trip/notes', label: 'Notes', desc: 'Reminders, contacts, important info', icon: NotebookPen, count: (t) => (t?.notes.length ? `${t.notes.length}` : undefined) },
   { to: '/trip/people', label: 'Roster', desc: 'Everyone on the trip', icon: Users2, count: (t) => (t?.people.length ? `${t.people.length}` : undefined) },

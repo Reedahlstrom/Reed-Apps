@@ -52,10 +52,24 @@ export function seedPayload() {
     { id: 'n2', category: 'reminder', title: 'Sunscreen before park', body: 'Torres del Paine — high UV even when cold.', pinned: false, createdAt: now, updatedAt: now },
     { id: 'n3', category: 'note', title: 'Worksite contact', body: 'Sister Morales meets us at the school Monday 9am.', pinned: false, createdAt: now, updatedAt: now },
   ]
+  const committees = [
+    { id: 'c1', name: 'Devotional Crew', purpose: 'Plans and leads morning & night devos.', memberIds: [builders[0].id, builders[4].id, builders[8].id], notes: [{ id: 'cn1', text: 'Joshua wants to lead Thursday night.', createdAt: now }], createdAt: now },
+    { id: 'c2', name: 'Safety Crew', purpose: 'Tools, first aid, headcounts on the worksite.', memberIds: [builders[3].id, builders[5].id], notes: [], createdAt: now },
+    { id: 'c3', name: 'Game Crew', purpose: 'Runs evening games and bus activities.', memberIds: [builders[1].id, builders[6].id, builders[10].id], notes: [], createdAt: now },
+  ]
+  const devotionals = [
+    { id: 'd1', time: 'morning', title: 'Love God, Love People', giver: 'Reed', date: '2026-06-16', scriptures: ['Matthew 22:37-39'], ideas: 'Open with the two greatest commandments. Tie to why we serve.', done: true, createdAt: now, updatedAt: now },
+    { id: 'd2', time: 'evening', title: 'This Is Real', giver: 'Elena', date: '2026-06-16', scriptures: ['James 1:22'], ideas: 'Faith in action — the worksite is worship.', done: false, createdAt: now, updatedAt: now },
+  ]
+  const briefing = {
+    vision: 'Leave the kids and the community changed — show up humble, work hard, love loud.',
+    rules: 'Buddy system always. Phones away during devos and worksite. Be on the bus on time.',
+    expectations: 'Everyone serves, everyone shares once, no one sits alone.',
+  }
   const trip = {
     id: 'trip_demo', name: 'Trip 1',
     meta: { startDate: '2026-06-15', endDate: '2026-07-01', destination: 'Patagonia & Concepción, Chile' },
-    people, foodDays: [foodDay], busDays,
+    people, foodDays: [foodDay], busDays, committees, devotionals, briefing,
     meetings: builders.map((b, i) => ({ personId: b.id, status: i < 3 ? 'done' : i < 5 ? 'scheduled' : 'pending', date: i >= 3 && i < 5 ? '2026-06-20' : undefined, followUps: i === 3 ? [{ id: 'fu1', text: 'Check in about homesickness', done: false }] : [], updatedAt: now })),
     notes, roomPlans: [{ phase: 'first', rooms }], groupSets, poopNights,
     onboarded: true, createdAt: now, updatedAt: now,

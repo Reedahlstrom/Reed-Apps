@@ -122,6 +122,51 @@ export interface GroupSet {
   createdAt: string
 }
 
+/* ---------------- Committees ---------------- */
+
+export interface CommitteeNote {
+  id: string
+  text: string
+  createdAt: string
+}
+
+export interface Committee {
+  id: string
+  name: string
+  purpose: string
+  memberIds: string[]
+  notes: CommitteeNote[]
+  createdAt: string
+}
+
+/* ---------------- Devotionals + Briefing ---------------- */
+
+export type DevoTime = 'morning' | 'evening'
+
+export interface Devotional {
+  id: string
+  time: DevoTime
+  /** Topic / theme */
+  title: string
+  /** Who is giving it (free text — usually a leader, sometimes a builder) */
+  giver: string
+  /** Optional — devos are flexible, not every one is planned */
+  date?: string
+  scriptures: string[]
+  /** Shared collaborative idea notes */
+  ideas: string
+  done: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+/** Set once early so both leaders share the same expectations. */
+export interface Briefing {
+  vision: string
+  rules: string
+  expectations: string
+}
+
 /* ---------------- Poop tracker ---------------- */
 
 /** Each night we record ONLY the people who did NOT poop that day. */
@@ -151,6 +196,9 @@ export interface Trip {
   roomPlans: RoomPlan[]
   groupSets: GroupSet[]
   poopNights: PoopNight[]
+  committees: Committee[]
+  devotionals: Devotional[]
+  briefing: Briefing
   onboarded: boolean
   createdAt: string
   updatedAt: string
