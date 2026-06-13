@@ -18,10 +18,13 @@ create table if not exists public.allowed_emails (
   added_at timestamptz not null default now()
 );
 
--- Seed the leaders. ADD YOUR CO-LEADER'S EMAIL on the second line.
+-- Seed everyone who can sign in. All of them share every trip and can edit
+-- every part of it (bus buddies, food, meetings, devotionals — everything).
+-- >>> Replace the two co-leader emails before running. <<<
 insert into public.allowed_emails (email, label) values
-  ('reedahlstrom@gmail.com', 'Reed (Leader)')
-  -- , ('coleader@email.com', 'Co-Leader')
+  ('reedahlstrom@gmail.com', 'Reed — Leader'),
+  ('elena-email@example.com', 'Elena — Co-Leader (Trip 1)'),
+  ('bri-email@example.com',   'Bri — Co-Leader (Trip 2)')
 on conflict (email) do nothing;
 
 -- ---------- trips (whole document as JSONB) ----------

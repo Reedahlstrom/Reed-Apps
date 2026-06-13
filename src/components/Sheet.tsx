@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { X } from 'lucide-react'
 import { useEffect, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import { cx } from '@/lib/cx'
 
 /**
@@ -27,10 +28,10 @@ export function Sheet({
     return () => void (document.body.style.overflow = prev)
   }, [open])
 
-  return (
+  return createPortal(
     <AnimatePresence>
       {open && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center">
+        <div className="fixed inset-0 z-[60] flex items-end justify-center">
           <motion.div
             className="absolute inset-0 bg-abyss/70 backdrop-blur-sm"
             initial={{ opacity: 0 }}
@@ -64,6 +65,7 @@ export function Sheet({
           </motion.div>
         </div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body,
   )
 }
