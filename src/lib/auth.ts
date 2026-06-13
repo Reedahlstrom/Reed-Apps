@@ -29,10 +29,20 @@ export async function signUp(email: string, password: string): Promise<{ ok: boo
   if (!sb) return { ok: false, error: 'Sync is not set up.' }
   const e = email.trim().toLowerCase()
   const { data, error } = await sb.auth.signUp({ email: e, password })
-  if (error) return { ok: false, error: error.message }
+  if (error) {
+    // Already registered → just sign them in.
+    if (/already registered|already exists/i.test(error.message)) return signIn(e, password)
+    return { ok: false, error: error.message }
+  }
   // If a session came back, they're signed straight in. If not (confirm-email
   // still on), try an immediate sign-in so the flow stays seamless.
-  if (!data.session) return signIn(e, password)
+  if (!data.session) {
+    const r = await signIn(e, password)
+    if (!r.ok && /not confirmed/i.test(r.error ?? '')) {
+      return { ok: false, error: 'Account created — check your email to confirm, then tap Sign in.' }
+    }
+    return r
+  }
   return { ok: true }
 }
 
