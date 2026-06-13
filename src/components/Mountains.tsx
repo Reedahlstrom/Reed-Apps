@@ -15,8 +15,8 @@ export function Mountains({ className }: { className?: string }) {
     >
       <path
         d="M0 224 L150 150 L250 192 L430 92 L520 150 L700 60 L840 150 L960 104 L1120 176 L1200 140"
-        stroke="white"
-        strokeOpacity="0.55"
+        stroke="#2563eb"
+        strokeOpacity="0.45"
         strokeWidth="2.5"
         strokeLinejoin="round"
         strokeLinecap="round"

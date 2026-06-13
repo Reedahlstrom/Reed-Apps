@@ -23,7 +23,7 @@ export function LauncherPage() {
       name: 'Trip Leader',
       tagline: activeName ? `${activeName} · Patagonia` : 'Humanitarian trip command center',
       to: '/trip',
-      accent: 'from-glacier-400/30 to-deep-800/40',
+      accent: 'from-glacier-400/12 to-glacier-600/5',
     },
   ]
 
@@ -69,7 +69,7 @@ export function LauncherPage() {
                 <p className="font-display text-xl">{app.name}</p>
                 <p className="mt-0.5 text-sm text-ice-300/70">{app.tagline}</p>
               </div>
-              <span className="relative z-10 grid h-10 w-10 place-items-center rounded-full bg-white/10 text-ice-100 transition-transform group-active:translate-x-0.5">
+              <span className="relative z-10 grid h-10 w-10 place-items-center rounded-full bg-slate-200/70 text-ice-100 transition-transform group-active:translate-x-0.5">
                 <ArrowUpRight size={20} />
               </span>
             </motion.button>

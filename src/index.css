@@ -1,61 +1,57 @@
 @import 'tailwindcss';
 
 /* ============================================================
-   REED APPS — Alpine / Patagonia design system
-   Deep navy nights, glacial blues, ice white. Blue & white core.
+   REED APPS — Clean light design system (blue)
+   White surfaces, soft borders + shadows, one strong blue accent.
    ============================================================ */
 
 @theme {
-  /* Brand blues — glacier to midnight */
-  --color-ice-50: #f3f8fd;
-  --color-ice-100: #e4eefb;
-  --color-ice-200: #c4dbf4;
-  --color-ice-300: #97c1ea;
-  --color-glacier-400: #5ea0dc;
-  --color-glacier-500: #3b82c4;
-  --color-glacier-600: #2867a8;
-  --color-deep-700: #1d4e85;
-  --color-deep-800: #163c68;
-  --color-night-900: #0f2747;
-  --color-night-950: #0a1626;
-  --color-abyss: #060d18;
+  /* "ice" ramp is now the TEXT ramp (dark → muted) on light surfaces */
+  --color-ice-50: #0f1b2e;   /* headings */
+  --color-ice-100: #1f2a3d;  /* primary text */
+  --color-ice-200: #3a4658;  /* strong secondary */
+  --color-ice-300: #6b7a90;  /* muted text / hairlines via opacity */
 
-  /* Functional status (poop / alerts) */
-  --color-status-good: #2fa37c;
-  --color-status-good-soft: #0d3b2e;
-  --color-status-warn: #d99a2b;
-  --color-status-warn-soft: #3a2c0c;
-  --color-status-bad: #e5614d;
-  --color-status-bad-soft: #3a140f;
+  /* Blue accent */
+  --color-glacier-400: #3b82f6;
+  --color-glacier-500: #2563eb;
+  --color-glacier-600: #1d4ed8;
+  --color-deep-700: #1d4ed8;
+  --color-deep-800: #1e3a8a;
 
-  /* Warm sand accent — Patagonia rock at sunset, used sparingly */
-  --color-sand-300: #e8c9a0;
-  --color-sand-500: #c98f52;
+  /* Light backgrounds */
+  --color-night-900: #e9eff7;
+  --color-night-950: #f2f6fc;
+  --color-abyss: #0b1220;    /* stays dark — used for modal scrims */
+
+  /* Functional status */
+  --color-status-good: #16a34a;
+  --color-status-good-soft: #dcfce7;
+  --color-status-warn: #d97706;
+  --color-status-warn-soft: #fef3c7;
+  --color-status-bad: #dc2626;
+  --color-status-bad-soft: #fee2e2;
+
+  /* Warm secondary accent (sparingly) */
+  --color-sand-300: #b9852f;
+  --color-sand-500: #a06a1f;
 
   --font-display: 'Clash Display', ui-sans-serif, system-ui, sans-serif;
   --font-sans: 'Satoshi', ui-sans-serif, system-ui, sans-serif;
 
-  --radius-xl: 1.25rem;
-  --radius-2xl: 1.75rem;
+  --radius-xl: 1.1rem;
+  --radius-2xl: 1.5rem;
 
-  --shadow-lift: 0 1px 2px rgba(6, 13, 24, 0.4), 0 12px 30px -12px rgba(6, 13, 24, 0.7);
-  --shadow-glow: 0 0 0 1px rgba(151, 193, 234, 0.12), 0 18px 50px -20px rgba(59, 130, 196, 0.55);
+  --shadow-lift: 0 1px 2px rgba(15, 23, 42, 0.04), 0 10px 24px -16px rgba(15, 23, 42, 0.14);
+  --shadow-glow: 0 1px 2px rgba(37, 99, 235, 0.10), 0 14px 34px -18px rgba(37, 99, 235, 0.35);
 }
 
 @layer base {
-  :root {
-    color-scheme: dark;
-  }
+  :root { color-scheme: light; }
 
-  * {
-    -webkit-tap-highlight-color: transparent;
-  }
+  * { -webkit-tap-highlight-color: transparent; }
 
-  html,
-  body,
-  #root {
-    height: 100%;
-  }
+  html, body, #root { height: 100%; }
 
   body {
     margin: 0;
@@ -71,86 +67,63 @@
     font-family: var(--font-display);
     font-weight: 600;
     letter-spacing: -0.02em;
+    color: var(--color-ice-50);
     text-wrap: balance;
   }
 
-  p {
-    text-wrap: pretty;
-  }
+  p { text-wrap: pretty; }
 
-  /* Hide scrollbars on mobile while keeping scroll */
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-  /* Respect iOS safe areas */
   .pt-safe { padding-top: max(1rem, env(safe-area-inset-top)); }
   .pb-safe { padding-bottom: max(1rem, env(safe-area-inset-bottom)); }
   .min-h-dvh { min-height: 100dvh; }
 }
 
 @layer components {
-  /* The atmospheric app backdrop: layered radial glows + topographic contours */
+  /* App backdrop — clean light with the faintest blue lift */
   .alpine-backdrop {
     background-color: var(--color-night-950);
     background-image:
-      radial-gradient(120% 80% at 80% -10%, rgba(59, 130, 196, 0.22), transparent 55%),
-      radial-gradient(100% 70% at 0% 0%, rgba(94, 160, 220, 0.14), transparent 50%),
-      radial-gradient(90% 90% at 50% 120%, rgba(15, 39, 71, 0.85), transparent 60%);
+      radial-gradient(120% 80% at 85% -10%, rgba(59, 130, 246, 0.10), transparent 55%),
+      radial-gradient(90% 60% at 0% 0%, rgba(37, 99, 235, 0.05), transparent 50%);
   }
 
-  /* Frosted glass card — the workhorse surface */
+  /* The workhorse surface — a crisp white card */
   .glass {
-    background: linear-gradient(
-      160deg,
-      rgba(29, 78, 133, 0.30),
-      rgba(15, 39, 71, 0.55) 60%,
-      rgba(10, 22, 38, 0.65)
-    );
-    border: 1px solid rgba(151, 193, 234, 0.14);
-    backdrop-filter: blur(18px) saturate(140%);
-    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    background: #ffffff;
+    border: 1px solid #e7eef6;
     box-shadow: var(--shadow-lift);
   }
 
+  /* Quiet fill (chips, inset rows) */
   .glass-soft {
-    background: rgba(22, 60, 104, 0.28);
-    border: 1px solid rgba(151, 193, 234, 0.10);
+    background: #f4f8fd;
+    border: 1px solid #e7eef6;
   }
 
-  /* Primary action — glacial gradient with crisp edge light */
+  /* Primary action — solid confident blue */
   .btn-glacier {
-    background: linear-gradient(180deg, var(--color-glacier-400), var(--color-glacier-600));
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.25),
-      0 8px 24px -8px rgba(59, 130, 196, 0.7);
-    color: white;
+    background: linear-gradient(180deg, var(--color-glacier-500), var(--color-glacier-600));
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.15) inset, 0 8px 20px -10px rgba(37, 99, 235, 0.55);
+    color: #ffffff;
   }
   .btn-glacier:active { transform: translateY(1px) scale(0.99); }
 
-  /* Hairline divider that glows faintly */
-  .hairline { border-color: rgba(151, 193, 234, 0.12); }
+  .hairline { border-color: #e7eef6; }
 
-  /* Display number badges (food orders, group counts) */
   .num-chip {
     font-family: var(--font-display);
     font-variant-numeric: tabular-nums;
     letter-spacing: -0.02em;
   }
 
-  /* Tap target floor for mobile ergonomics */
   .tap { min-height: 44px; }
 }
 
-/* Subtle grain overlay to kill banding on the gradients */
-.grain::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  opacity: 0.035;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
+/* Grain disabled in the light theme — kept as a no-op so .grain usages are safe */
+.grain::before { content: none; }
 
 @keyframes rise {
   from { opacity: 0; transform: translateY(12px); }

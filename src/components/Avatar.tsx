@@ -19,7 +19,7 @@ const roleRing: Record<Role, string> = {
   leader: 'ring-2 ring-sand-300/70',
   coleader: 'ring-2 ring-glacier-400/70',
   parent: 'ring-1 ring-ice-300/40',
-  builder: 'ring-1 ring-white/10',
+  builder: 'ring-1 ring-slate-200',
 }
 
 export function Avatar({

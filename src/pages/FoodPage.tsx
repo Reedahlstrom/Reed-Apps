@@ -59,7 +59,7 @@ export function FoodPage() {
                   <p className="font-display text-[15px] leading-tight">{d.label}</p>
                   <p className="text-xs text-ice-300/55">{prettyShort(d.date)} · {d.menu.length} items · {ordered} ordered</p>
                 </div>
-                <span className="num-chip rounded-full bg-white/5 px-2.5 py-1 text-sm text-ice-200">{ordered}</span>
+                <span className="num-chip rounded-full bg-slate-100 px-2.5 py-1 text-sm text-ice-200">{ordered}</span>
               </button>
             )
           })}
@@ -202,7 +202,7 @@ function FoodDayView({ day, onBack }: { day: FoodDay; onBack: () => void }) {
       {/* vendor view — counts only, clean for screenshot */}
       <Sheet open={vendorOpen} onClose={() => setVendorOpen(false)} title="For the restaurant">
         <div className="space-y-4 pt-1">
-          <div className="rounded-2xl border border-ice-300/15 bg-night-950/50 p-5">
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
             <p className="text-center text-xs font-medium uppercase tracking-[0.15em] text-glacier-400">{trip.name} · {prettyShort(day.date)}</p>
             <p className="mb-4 text-center font-display text-xl">{day.label}</p>
             <div className="space-y-2.5">

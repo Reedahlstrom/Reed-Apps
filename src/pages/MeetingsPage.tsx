@@ -60,7 +60,7 @@ export function MeetingsPage() {
       <PageHeader title="2-on-1 Meetings" subtitle={`${counts.done} of ${builders.length} done`} icon={MessagesSquare} />
 
       {/* progress bar */}
-      <div className="flex h-2 overflow-hidden rounded-full bg-white/8">
+      <div className="flex h-2 overflow-hidden rounded-full bg-slate-100">
         <div className="bg-status-good transition-all" style={{ width: `${(counts.done / Math.max(1, builders.length)) * 100}%` }} />
         <div className="bg-glacier-500/70 transition-all" style={{ width: `${(counts.scheduled / Math.max(1, builders.length)) * 100}%` }} />
       </div>
