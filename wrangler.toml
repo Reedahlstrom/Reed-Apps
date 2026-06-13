@@ -1,0 +1,5 @@
+# Cloudflare Pages — build output config.
+# (Build command `npm run build` and Node version (.nvmrc=22) are set in the
+#  Pages dashboard / repo; this pins the published directory.)
+name = "reed-apps"
+pages_build_output_dir = "dist"
