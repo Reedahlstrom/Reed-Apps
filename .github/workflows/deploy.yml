@@ -1,0 +1,48 @@
+name: Deploy to Cloudflare Pages
+
+# Builds the app in CI and deploys dist/ to the "reed-apps" Pages project on
+# every push to main. Once this is working you no longer need to commit dist/.
+#
+# One-time setup (GitHub → repo → Settings → Secrets and variables → Actions):
+#   - CLOUDFLARE_API_TOKEN   (token with "Cloudflare Pages: Edit" permission)
+#   - CLOUDFLARE_ACCOUNT_ID  (Cloudflare dashboard → Workers & Pages → Account ID)
+#
+# Then, so Cloudflare's own Git build doesn't also run, disconnect Git auto-
+# deploys: Pages project → Settings → Builds & deployments → disconnect.
+#
+# The Supabase URL + publishable (anon) key below are public and safe to embed.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  deployments: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build
+        run: npm run build
+        env:
+          VITE_SUPABASE_URL: https://xfspyweaegrxibrryfgg.supabase.co
+          VITE_SUPABASE_ANON_KEY: sb_publishable_ZJQpvwf_NKGduq7PB4cdVw_l3bHiG3s
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=reed-apps --branch=main
