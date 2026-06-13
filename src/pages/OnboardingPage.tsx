@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Mountain, ArrowRight, ArrowLeft, User, UserCog, Users2, Tent, Check, CalendarRange } from 'lucide-react'
 import { Mountains } from '@/components/Mountains'
+import { Intro } from '@/components/Intro'
 import { Button, Input, Textarea, Field } from '@/components/ui'
 import { Avatar } from '@/components/Avatar'
 import { useActiveTrip, useTripStore } from '@/store/useTripStore'
@@ -24,6 +25,7 @@ export function OnboardingPage() {
   const renameTrip = useTripStore((s) => s.renameTrip)
   const setOnboarded = useTripStore((s) => s.setOnboarded)
 
+  const [intro, setIntro] = useState(true)
   const [step, setStep] = useState(0)
   const [dir, setDir] = useState(1)
   const [leader, setLeader] = useState('')
@@ -171,6 +173,8 @@ export function OnboardingPage() {
   const Icon = current.icon
 
   return (
+    <>
+    <AnimatePresence>{intro && <Intro onDone={() => setIntro(false)} />}</AnimatePresence>
     <div className="alpine-backdrop grain relative flex min-h-dvh flex-col overflow-hidden">
       {/* progress */}
       <div className="pt-safe px-5">
@@ -227,6 +231,7 @@ export function OnboardingPage() {
 
       <Mountains className="absolute inset-x-0 bottom-0 h-40 opacity-60" />
     </div>
+    </>
   )
 }
 
