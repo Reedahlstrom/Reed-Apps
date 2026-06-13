@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Settings, CalendarRange, Check, Plus, Trash2, Luggage, ChevronRight } from 'lucide-react'
+import { Settings, CalendarRange, Check, Plus, Trash2, Luggage, ChevronRight, UserPlus, Copy, Share2, Loader2 } from 'lucide-react'
 import { PageHeader } from '@/components/PageHeader'
 import { Sheet } from '@/components/Sheet'
 import { Button, Input, Field, Card } from '@/components/ui'
 import { useActiveTrip, useTripStore } from '@/store/useTripStore'
 import { prettyDay } from '@/lib/dates'
+import { isSupabaseConfigured } from '@/lib/supabase'
+import { createInvite, inviteLink } from '@/lib/invites'
 
 export function SettingsPage() {
   const navigate = useNavigate()
@@ -61,6 +63,9 @@ export function SettingsPage() {
         </p>
       </Card>
 
+      {/* collaborators / invite */}
+      <InviteCard tripId={trip.id} tripName={trip.name} />
+
       {/* trips list */}
       <div className="space-y-2">
         <p className="px-1 text-xs font-medium uppercase tracking-wider text-ice-300/60">Trips</p>
@@ -111,5 +116,62 @@ export function SettingsPage() {
         </p>
       </Sheet>
     </div>
+  )
+}
+
+/* ---------------- invite a co-leader ---------------- */
+
+function InviteCard({ tripId, tripName }: { tripId: string; tripName: string }) {
+  const [link, setLink] = useState<string | null>(null)
+  const [busy, setBusy] = useState(false)
+  const [copied, setCopied] = useState(false)
+
+  if (!isSupabaseConfigured) {
+    return (
+      <Card className="space-y-1 p-4">
+        <p className="flex items-center gap-2 font-display text-[15px]"><UserPlus size={17} className="text-glacier-400" /> Invite your co-leader</p>
+        <p className="text-sm text-ice-300/60">Sign in (top of the app) to create a share link so your co-leader sees this trip too.</p>
+      </Card>
+    )
+  }
+
+  const make = async () => {
+    setBusy(true)
+    const code = await createInvite(tripId)
+    setBusy(false)
+    if (code) setLink(inviteLink(code))
+  }
+  const copy = async () => {
+    if (!link) return
+    await navigator.clipboard.writeText(link).catch(() => {})
+    setCopied(true)
+    setTimeout(() => setCopied(false), 1500)
+  }
+  const share = async () => {
+    if (link && navigator.share) await navigator.share({ title: `Join ${tripName}`, url: link }).catch(() => {})
+  }
+
+  return (
+    <Card className="space-y-3 p-4">
+      <div className="flex items-center gap-2">
+        <span className="grid h-9 w-9 place-items-center rounded-xl glass-soft text-glacier-400"><UserPlus size={18} /></span>
+        <div>
+          <p className="font-display text-[15px] leading-tight">Invite your co-leader</p>
+          <p className="text-xs text-ice-300/55">Share a link — they sign in and see this trip live</p>
+        </div>
+      </div>
+      {link ? (
+        <div className="space-y-2">
+          <div className="rounded-xl bg-night-950/60 px-3 py-2.5 text-sm text-ice-200 break-all">{link}</div>
+          <div className="flex gap-2">
+            <Button full variant="soft" icon={copied ? Check : Copy} onClick={copy}>{copied ? 'Copied' : 'Copy link'}</Button>
+            {typeof navigator !== 'undefined' && 'share' in navigator && <Button icon={Share2} onClick={share} aria-label="Share" />}
+          </div>
+          <p className="text-center text-xs text-ice-300/45">Anyone with this link can join &amp; edit {tripName}.</p>
+        </div>
+      ) : (
+        <Button full icon={busy ? Loader2 : UserPlus} onClick={make} disabled={busy} className={busy ? '[&_svg]:animate-spin' : ''}>{busy ? 'Creating…' : 'Create invite link'}</Button>
+      )}
+    </Card>
   )
 }

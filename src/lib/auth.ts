@@ -1,7 +1,7 @@
 import { getSupabase } from './supabase'
 import type { Session } from '@supabase/supabase-js'
 
-/** Magic-link auth helpers. All safe no-ops when Supabase isn't configured. */
+/** Simple email + password auth. No codes, no email step (confirm-email off). */
 
 export async function getSession(): Promise<Session | null> {
   const sb = getSupabase()
@@ -17,15 +17,23 @@ export function onAuthChange(cb: (session: Session | null) => void): () => void 
   return () => data.subscription.unsubscribe()
 }
 
-export async function sendMagicLink(email: string): Promise<{ ok: boolean; error?: string }> {
+export async function signIn(email: string, password: string): Promise<{ ok: boolean; error?: string }> {
   const sb = getSupabase()
-  if (!sb) return { ok: false, error: 'Sync is not configured.' }
-  const redirect = window.location.origin + import.meta.env.BASE_URL
-  const { error } = await sb.auth.signInWithOtp({
-    email: email.trim().toLowerCase(),
-    options: { emailRedirectTo: redirect },
-  })
+  if (!sb) return { ok: false, error: 'Sync is not set up.' }
+  const { error } = await sb.auth.signInWithPassword({ email: email.trim().toLowerCase(), password })
   return error ? { ok: false, error: error.message } : { ok: true }
+}
+
+export async function signUp(email: string, password: string): Promise<{ ok: boolean; error?: string }> {
+  const sb = getSupabase()
+  if (!sb) return { ok: false, error: 'Sync is not set up.' }
+  const e = email.trim().toLowerCase()
+  const { data, error } = await sb.auth.signUp({ email: e, password })
+  if (error) return { ok: false, error: error.message }
+  // If a session came back, they're signed straight in. If not (confirm-email
+  // still on), try an immediate sign-in so the flow stays seamless.
+  if (!data.session) return signIn(e, password)
+  return { ok: true }
 }
 
 export async function signOut(): Promise<void> {
@@ -33,14 +41,9 @@ export async function signOut(): Promise<void> {
   await sb?.auth.signOut()
 }
 
-/**
- * Whether the signed-in email is on the trip allowlist. Returns false if the
- * backend isn't ready yet (table missing) so we can fall back to offline.
- */
-export async function isEmailAllowed(): Promise<boolean> {
+export async function currentUserEmail(): Promise<string | null> {
   const sb = getSupabase()
-  if (!sb) return false
-  const { data, error } = await sb.from('allowed_emails').select('email').limit(1)
-  if (error) return false
-  return (data?.length ?? 0) > 0
+  if (!sb) return null
+  const { data } = await sb.auth.getUser()
+  return data.user?.email ?? null
 }

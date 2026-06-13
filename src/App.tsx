@@ -1,5 +1,7 @@
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { AppShell } from '@/components/AppShell'
+import { JoinPage } from '@/pages/JoinPage'
 import { LauncherPage } from '@/pages/LauncherPage'
 import { OnboardingPage } from '@/pages/OnboardingPage'
 import { TripDashboard } from '@/pages/TripDashboard'
@@ -19,10 +21,19 @@ import { RequireOnboarded } from '@/components/RequireOnboarded'
 import { AuthGate } from '@/components/AuthGate'
 
 export function App() {
+  const loc = useLocation()
+  // Capture an invite code from the URL even before sign-in, so it survives the
+  // login step and is redeemed right after.
+  useEffect(() => {
+    const m = loc.pathname.match(/^\/join\/([A-Za-z0-9]+)/)
+    if (m) localStorage.setItem('pending_invite', m[1].toUpperCase())
+  }, [loc.pathname])
+
   return (
     <AuthGate>
       <Routes>
         <Route path="/" element={<LauncherPage />} />
+        <Route path="/join/:code" element={<JoinPage />} />
         <Route path="/trip/onboarding" element={<OnboardingPage />} />
         <Route
           path="/trip"

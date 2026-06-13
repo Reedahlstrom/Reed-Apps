@@ -11,12 +11,15 @@ const rest = process.argv.slice(4)
 const doSeed = rest.includes('seed')
 const clicks = rest.filter((a) => a.startsWith('click:')).map((a) => a.slice(6))
 const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
-const BASE = 'http://localhost:5173/Reed-Apps/'
+const BASE = 'http://localhost:5173/'
 
 const browser = await chromium.launch({ executablePath: CHROME, headless: true })
 const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 3, isMobile: true })
 const page = await ctx.newPage()
-if (doSeed) await page.addInitScript((v) => window.localStorage.setItem('reed-apps-trip-store', v), seedPayload())
+if (doSeed) await page.addInitScript((v) => {
+  window.localStorage.setItem('reed-apps-trip-store', v)
+  window.localStorage.setItem('reed-offline', '1') // bypass auth wall for local QA
+}, seedPayload())
 
 const url = BASE.replace(/\/$/, '') + '/' + route.replace(/^\//, '')
 await page.goto(url, { waitUntil: 'networkidle' })
