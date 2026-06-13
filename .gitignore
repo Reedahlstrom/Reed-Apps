@@ -1,5 +1,6 @@
 node_modules
-dist
+# dist is committed so Cloudflare Pages serves the built app directly
+# (project has no build command). Rebuild with `npm run build` then commit dist.
 dist-ssr
 *.local
 .env
