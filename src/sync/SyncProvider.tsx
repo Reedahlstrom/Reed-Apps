@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useTripStore } from '@/store/useTripStore'
-import { pullTrips, pushTrip, subscribeTrips } from '@/lib/sync'
+import { pullTrips, pushTrip, subscribeTrips, primeRealtimeAuth } from '@/lib/sync'
+import { onAuthChange } from '@/lib/auth'
 import type { Trip } from '@/types/domain'
 
 /** A trip with no roster and not onboarded is just the local default seed. */
@@ -45,11 +46,18 @@ export function SyncProvider({ active }: { active: boolean }) {
       }
     }
 
-    const unsubRealtime = subscribeTrips((trip) => {
-      remoteStamp.set(trip.id, trip.updatedAt)
-      store.getState().applyRemoteTrip(trip)
-      store.getState().pruneEmptySeeds()
-    })
+    let unsubRealtime = () => {}
+    void (async () => {
+      await primeRealtimeAuth() // ensure the realtime socket carries the user JWT (RLS)
+      if (disposed) return
+      unsubRealtime = subscribeTrips((trip) => {
+        remoteStamp.set(trip.id, trip.updatedAt)
+        store.getState().applyRemoteTrip(trip)
+        store.getState().pruneEmptySeeds()
+      })
+    })()
+    // keep realtime auth fresh across token refreshes
+    const unsubAuth = onAuthChange(() => void primeRealtimeAuth())
 
     // push local changes (debounced); never push the empty seed
     const unsubStore = store.subscribe((state) => {
@@ -75,6 +83,7 @@ export function SyncProvider({ active }: { active: boolean }) {
       if (timer) clearTimeout(timer)
       unsubRealtime()
       unsubStore()
+      unsubAuth()
       window.removeEventListener('focus', onWake)
       document.removeEventListener('visibilitychange', onWake)
     }

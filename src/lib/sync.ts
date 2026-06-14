@@ -53,6 +53,18 @@ export async function deleteTripRemote(tripId: string): Promise<void> {
   await sb.from('trips').delete().eq('id', tripId)
 }
 
+/**
+ * Realtime postgres_changes on an RLS table only delivers events if the realtime
+ * socket carries the signed-in user's JWT. supabase-js doesn't always propagate
+ * it in time, so we set it explicitly before subscribing (and on token refresh).
+ */
+export async function primeRealtimeAuth(): Promise<void> {
+  const sb = getSupabase()
+  if (!sb) return
+  const { data } = await sb.auth.getSession()
+  if (data.session) sb.realtime.setAuth(data.session.access_token)
+}
+
 /** Subscribe to remote trip changes. Returns an unsubscribe function. */
 export function subscribeTrips(onChange: (trip: Trip) => void): () => void {
   const sb = getSupabase()
