@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Settings, CalendarRange, Check, Plus, Trash2, Luggage, ChevronRight, Users, Copy, Share2 } from 'lucide-react'
+import { Settings, CalendarRange, Check, Plus, Trash2, Luggage, ChevronRight, Users, Copy, Share2, Cloud, CloudOff, LogOut } from 'lucide-react'
 import { PageHeader } from '@/components/PageHeader'
 import { Sheet } from '@/components/Sheet'
 import { Button, Input, Field, Card } from '@/components/ui'
@@ -8,6 +8,7 @@ import { useActiveTrip, useTripStore } from '@/store/useTripStore'
 import { prettyDay } from '@/lib/dates'
 import { isSupabaseConfigured } from '@/lib/supabase'
 import { fetchCollaborators } from '@/lib/collab'
+import { currentUserEmail, signOut } from '@/lib/auth'
 
 export function SettingsPage() {
   const navigate = useNavigate()
@@ -62,6 +63,9 @@ export function SettingsPage() {
           {saved && <span className="ml-auto flex items-center gap-1 text-status-good"><Check size={13} /> Saved</span>}
         </p>
       </Card>
+
+      {/* account / sync */}
+      <AccountCard />
 
       {/* collaborators — shared live */}
       <InviteCard />
@@ -177,6 +181,48 @@ function InviteCard() {
         {typeof navigator !== 'undefined' && 'share' in navigator && <Button icon={Share2} onClick={share} aria-label="Share" />}
       </div>
       <p className="text-center text-xs text-ice-300/45">Your co-leader signs in with their email and sees this exact trip — live.</p>
+    </Card>
+  )
+}
+
+/* ---------------- account / sync state ---------------- */
+
+function AccountCard() {
+  const [email, setEmail] = useState<string | null>(null)
+  const offline = typeof localStorage !== 'undefined' && localStorage.getItem('reed-offline') === '1'
+
+  useEffect(() => {
+    if (isSupabaseConfigured && !offline) currentUserEmail().then(setEmail)
+  }, [offline])
+
+  if (!isSupabaseConfigured) return null
+
+  const goOnline = () => { localStorage.removeItem('reed-offline'); window.location.reload() }
+  const out = async () => { await signOut(); window.location.reload() }
+
+  if (offline) {
+    return (
+      <Card className="space-y-3 p-4">
+        <div className="flex items-center gap-2">
+          <span className="grid h-9 w-9 place-items-center rounded-xl glass-soft text-ice-300/70"><CloudOff size={18} /></span>
+          <div>
+            <p className="font-display text-[15px] leading-tight">Offline on this device</p>
+            <p className="text-xs text-ice-300/55">Changes save here only — not synced with your co-leader</p>
+          </div>
+        </div>
+        <Button full icon={Cloud} onClick={goOnline}>Sign in to sync live</Button>
+      </Card>
+    )
+  }
+
+  return (
+    <Card className="flex items-center gap-3 p-4">
+      <span className="grid h-9 w-9 place-items-center rounded-xl bg-status-good/15 text-status-good"><Cloud size={18} /></span>
+      <div className="min-w-0 flex-1">
+        <p className="font-display text-[15px] leading-tight">Synced live</p>
+        <p className="truncate text-xs text-ice-300/55">{email ?? 'Signed in'}</p>
+      </div>
+      <button onClick={out} className="flex items-center gap-1.5 rounded-xl glass-soft px-3 py-2 text-sm text-ice-200"><LogOut size={15} /> Sign out</button>
     </Card>
   )
 }
