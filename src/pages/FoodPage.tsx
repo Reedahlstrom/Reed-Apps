@@ -89,6 +89,7 @@ function FoodDayView({ day, onBack }: { day: FoodDay; onBack: () => void }) {
   const [newItem, setNewItem] = useState('')
   const [vendorOpen, setVendorOpen] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [orderingItemId, setOrderingItemId] = useState<string | null>(null)
 
   const orderByPerson = useMemo(() => new Map(day.orders.map((o) => [o.personId, o.itemId])), [day.orders])
   const tally = useMemo(() => {
@@ -144,32 +145,19 @@ function FoodDayView({ day, onBack }: { day: FoodDay; onBack: () => void }) {
           </div>
 
           {view === 'order' ? (
-            <div className="space-y-2">
-              <p className="px-1 text-xs text-ice-300/55">{day.orders.length} of {trip.people.length} ordered · pass the phone, each taps their meal number</p>
-              {trip.people.map((p) => {
-                const picked = orderByPerson.get(p.id)
-                return (
-                  <div key={p.id} className="glass rounded-2xl p-3">
-                    <div className="mb-2 flex items-center gap-2.5">
-                      <Avatar name={p.name} role={p.role} size={32} />
-                      <span className="flex-1 text-[15px] font-medium">{p.name}</span>
-                      {picked && <span className="num-chip rounded-full bg-glacier-500/20 px-2 py-0.5 text-xs text-glacier-400">#{day.menu.find((m) => m.id === picked)?.number}</span>}
-                    </div>
-                    <div className="flex flex-wrap gap-1.5">
-                      {day.menu.map((item) => (
-                        <button
-                          key={item.id}
-                          onClick={() => setOrder(day.id, p.id, picked === item.id ? null : item.id)}
-                          className={cx('num-chip tap min-w-9 rounded-lg px-2.5 text-sm transition-all', picked === item.id ? 'btn-glacier' : 'glass-soft text-ice-200')}
-                          aria-label={`${p.name} orders ${item.name}`}
-                        >
-                          {item.number}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )
-              })}
+            <div className="space-y-2.5">
+              <p className="px-1 text-xs text-ice-300/55">{day.orders.length} of {trip.people.length} ordered · tap your meal, then your name — then pass the phone</p>
+              {day.menu.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => setOrderingItemId(item.id)}
+                  className="glass flex w-full items-center gap-3.5 rounded-2xl p-4 text-left transition-transform active:scale-[0.99]"
+                >
+                  <span className="num-chip grid h-12 w-12 shrink-0 place-items-center rounded-xl btn-glacier text-xl">{item.number}</span>
+                  <span className="flex-1 font-display text-[17px] leading-tight">{item.name}</span>
+                  <span className="num-chip rounded-full bg-slate-100 px-3 py-1 text-sm text-ice-200">{tally.get(item.id) ?? 0}</span>
+                </button>
+              ))}
             </div>
           ) : (
             <div className="space-y-3">
@@ -220,6 +208,49 @@ function FoodDayView({ day, onBack }: { day: FoodDay; onBack: () => void }) {
           </div>
           <p className="flex items-center gap-1.5 text-center text-xs text-ice-300/50"><ListChecks size={13} /> Counts only — no names. Screenshot this for the vendor.</p>
         </div>
+      </Sheet>
+
+      {/* name picker — who's having this meal */}
+      <Sheet
+        open={!!orderingItemId}
+        onClose={() => setOrderingItemId(null)}
+        title={orderingItemId ? `Who's having ${day.menu.find((m) => m.id === orderingItemId)?.name}?` : ''}
+      >
+        {orderingItemId && (() => {
+          const pick = (personId: string) => { setOrder(day.id, personId, orderingItemId); setOrderingItemId(null) }
+          const unordered = trip.people.filter((p) => !orderByPerson.has(p.id))
+          const ordered = trip.people.filter((p) => orderByPerson.has(p.id))
+          return (
+            <div className="space-y-4 pt-1">
+              <p className="text-xs text-ice-300/55">Tap your name. Then hand the phone to the next person.</p>
+              <div className="space-y-2">
+                {unordered.map((p) => (
+                  <button key={p.id} onClick={() => pick(p.id)} className="glass flex w-full items-center gap-3 rounded-2xl p-3 text-left active:scale-[0.99]">
+                    <Avatar name={p.name} role={p.role} size={36} />
+                    <span className="flex-1 font-medium">{p.name}</span>
+                  </button>
+                ))}
+              </div>
+              {ordered.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-xs font-medium uppercase tracking-wider text-ice-300/50">Already ordered · tap to change</p>
+                  {ordered.map((p) => {
+                    const cur = orderByPerson.get(p.id)
+                    const curNo = day.menu.find((m) => m.id === cur)?.number
+                    const isThis = cur === orderingItemId
+                    return (
+                      <button key={p.id} onClick={() => pick(p.id)} className={cx('flex w-full items-center gap-3 rounded-2xl p-3 text-left', isThis ? 'glass-soft ring-1 ring-glacier-500/40' : 'opacity-70 hover:opacity-100')}>
+                        <Avatar name={p.name} role={p.role} size={32} />
+                        <span className="flex-1 text-[15px]">{p.name}</span>
+                        <span className="num-chip rounded-full bg-slate-100 px-2 py-0.5 text-xs text-ice-300/70">#{curNo}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+          )
+        })()}
       </Sheet>
 
       <Sheet open={confirmDelete} onClose={() => setConfirmDelete(false)} title="Delete this meal?" footer={<div className="flex gap-2"><Button full variant="soft" onClick={() => setConfirmDelete(false)}>Keep</Button><Button full variant="danger" icon={Trash2} onClick={() => { removeFoodDay(day.id); onBack() }}>Delete</Button></div>}>

@@ -173,6 +173,8 @@ export interface Briefing {
 export interface PoopNight {
   date: string
   notPooped: string[]
+  /** Who was given medicine that night (recorded from the synopsis). */
+  medicated?: string[]
   createdAt: string
 }
 

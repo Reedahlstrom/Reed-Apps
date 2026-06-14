@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
-import { Activity, Check, CalendarDays, ShieldAlert, ShieldCheck, CircleDot } from 'lucide-react'
+import { Activity, Check, CalendarDays, ShieldAlert, ShieldCheck, CircleDot, ClipboardCheck, Pill as PillIcon, PartyPopper } from 'lucide-react'
 import { PageHeader } from '@/components/PageHeader'
-import { Segmented, Card } from '@/components/ui'
+import { Segmented, Card, Button } from '@/components/ui'
+import { Sheet } from '@/components/Sheet'
 import { Avatar } from '@/components/Avatar'
 import { useActiveTrip, useTripStore } from '@/store/useTripStore'
-import { todayISO } from '@/lib/dates'
+import { todayISO, prettyShort } from '@/lib/dates'
 import { poopStatusFor, POOP_COPY, type PoopLevel } from '@/lib/health'
 import { cx } from '@/lib/cx'
 
@@ -18,8 +19,10 @@ export function PoopPage() {
   const trip = useActiveTrip()
   const setPoopNight = useTripStore((s) => s.setPoopNight)
   const togglePoop = useTripStore((s) => s.togglePoop)
+  const toggleMedicated = useTripStore((s) => s.toggleMedicated)
   const [tab, setTab] = useState<'tonight' | 'status'>('tonight')
   const [date, setDate] = useState(todayISO())
+  const [synopsisOpen, setSynopsisOpen] = useState(false)
 
   // Ensure the selected night exists so "everyone else went" is recorded even
   // when no one is flagged — this keeps the streak math honest.
@@ -36,6 +39,14 @@ export function PoopPage() {
     .map((p) => ({ p, s: poopStatusFor(p.id, trip.poopNights, todayISO()) }))
     .sort((a, b) => b.s.days - a.s.days || a.p.name.localeCompare(b.p.name))
   const concern = statuses.filter((x) => x.s.level !== 'good')
+
+  // Synopsis as of the night being checked
+  const medicated = new Set(night?.medicated ?? [])
+  const synStatuses = trip.people
+    .map((p) => ({ p, s: poopStatusFor(p.id, trip.poopNights, date) }))
+    .sort((a, b) => b.s.days - a.s.days || a.p.name.localeCompare(b.p.name))
+  const synConcern = synStatuses.filter((x) => x.s.level !== 'good')
+  const synGood = synStatuses.filter((x) => x.s.level === 'good')
 
   return (
     <div className="space-y-5 pt-2">
@@ -66,7 +77,8 @@ export function PoopPage() {
               )
             })}
           </div>
-          <p className="pb-2 text-center text-xs text-ice-300/45">{notPooped.size} marked as didn't go tonight</p>
+          <p className="text-center text-xs text-ice-300/45">{notPooped.size} marked as didn't go tonight</p>
+          <Button full icon={ClipboardCheck} onClick={() => setSynopsisOpen(true)}>Done — see tonight's read</Button>
         </>
       ) : (
         <div className="space-y-4">
@@ -100,6 +112,59 @@ export function PoopPage() {
           </div>
         </div>
       )}
+
+      {/* Tonight's read — the quick synopsis with medicine actions */}
+      <Sheet open={synopsisOpen} onClose={() => setSynopsisOpen(false)} title="Tonight's read" footer={<Button full onClick={() => setSynopsisOpen(false)}>Done</Button>}>
+        <div className="space-y-5 pt-1">
+          <p className="text-sm text-ice-300/60">{prettyShort(date)} · {trip.people.length} on the trip</p>
+
+          {synConcern.length === 0 ? (
+            <div className="flex flex-col items-center gap-2 rounded-2xl glass-soft py-8 text-center">
+              <span className="grid h-12 w-12 place-items-center rounded-2xl bg-status-good/15 text-status-good"><PartyPopper size={24} /></span>
+              <p className="font-display text-lg">Everyone's regular</p>
+              <p className="text-sm text-ice-300/60">No one needs help tonight.</p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <p className="text-xs font-medium uppercase tracking-wider text-status-bad/80">Needs help · {synConcern.length}</p>
+              {synConcern.map(({ p, s }) => {
+                const med = medicated.has(p.id)
+                return (
+                  <div key={p.id} className={cx('flex items-center gap-3 rounded-2xl border p-3', s.level === 'bad' ? 'border-status-bad/30 bg-status-bad/8' : 'border-status-warn/30 bg-status-warn/8')}>
+                    <Avatar name={p.name} role={p.role} size={38} />
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium leading-tight">{p.name}</p>
+                      <p className={cx('text-xs', s.level === 'bad' ? 'text-status-bad' : 'text-status-warn')}>
+                        {s.days} day{s.days !== 1 ? 's' : ''}{s.level === 'bad' ? ' — not good' : ''}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => toggleMedicated(date, p.id)}
+                      className={cx('tap flex items-center gap-1.5 rounded-xl px-3 text-sm font-medium transition-all', med ? 'bg-status-good/15 text-status-good' : 'glass-soft text-ice-200')}
+                    >
+                      {med ? <Check size={15} /> : <PillIcon size={15} />}
+                      {med ? 'Given' : 'Give meds'}
+                    </button>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+
+          {synGood.length > 0 && (
+            <div className="space-y-2">
+              <p className="text-xs font-medium uppercase tracking-wider text-status-good/80">All clear · {synGood.length}</p>
+              <div className="flex flex-wrap gap-1.5">
+                {synGood.map(({ p }) => (
+                  <span key={p.id} className="flex items-center gap-1.5 rounded-full glass-soft py-1 pl-1 pr-2.5 text-sm">
+                    <Avatar name={p.name} role={p.role} size={20} />{p.name.split(' ')[0]}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </Sheet>
     </div>
   )
 }

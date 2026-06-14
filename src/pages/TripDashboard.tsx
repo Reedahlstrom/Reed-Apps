@@ -8,6 +8,8 @@ import {
   AlertTriangle,
   CheckCircle2,
   MapPin,
+  Pin,
+  StickyNote,
   type LucideIcon,
 } from 'lucide-react'
 import { useActiveTrip } from '@/store/useTripStore'
@@ -50,6 +52,11 @@ export function TripDashboard() {
     .filter((x) => x.s.level === 'bad')
 
   const firstName = trip.people.find((p) => p.role === 'leader')?.name.split(' ')[0]
+
+  // notes for the dashboard: pinned first, then most recent
+  const dashNotes = [...trip.notes]
+    .sort((a, b) => Number(b.pinned) - Number(a.pinned) || (a.createdAt < b.createdAt ? 1 : -1))
+    .slice(0, 4)
 
   return (
     <div className="space-y-5 pt-2">
@@ -117,6 +124,28 @@ export function TripDashboard() {
           <QuickTile icon={MessagesSquare} label="2-on-1s" hint="Meet kids" to="/trip/meetings" />
         </div>
       </div>
+
+      {/* notes — pinned first, so you see them on open */}
+      {dashNotes.length > 0 && (
+        <div className="space-y-2">
+          <div className="flex items-center justify-between px-1">
+            <p className="text-xs font-medium uppercase tracking-wider text-ice-300/60">Notes</p>
+            <button onClick={() => navigate('/trip/notes')} className="text-xs text-glacier-500">All</button>
+          </div>
+          {dashNotes.map((n) => (
+            <button key={n.id} onClick={() => navigate('/trip/notes')} className="glass flex w-full items-start gap-3 rounded-2xl p-3.5 text-left active:scale-[0.99]">
+              <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg glass-soft text-glacier-500">
+                {n.pinned ? <Pin size={15} /> : <StickyNote size={15} />}
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="font-medium leading-tight">{n.title}</p>
+                {n.body && <p className="mt-0.5 line-clamp-2 text-sm text-ice-300/70">{n.body}</p>}
+                {n.category === 'contact' && n.phone && <p className="mt-1 text-sm text-status-good">{n.phone}</p>}
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

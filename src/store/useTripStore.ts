@@ -133,6 +133,7 @@ interface TripStore extends AppData {
   // poop
   setPoopNight: (date: string, notPooped: string[]) => void
   togglePoop: (date: string, personId: string) => void
+  toggleMedicated: (date: string, personId: string) => void
 
   // committees
   addCommittee: (name: string, purpose: string) => void
@@ -534,6 +535,18 @@ export const useTripStore = create<TripStore>()(
             night.notPooped = night.notPooped.includes(personId)
               ? night.notPooped.filter((x) => x !== personId)
               : [...night.notPooped, personId]
+          }),
+        ),
+      toggleMedicated: (date, personId) =>
+        set((s) =>
+          mutateActive(s, (t) => {
+            let night = t.poopNights.find((n) => n.date === date)
+            if (!night) {
+              night = { date, notPooped: [], medicated: [], createdAt: new Date().toISOString() }
+              t.poopNights.push(night)
+            }
+            const meds = night.medicated ?? []
+            night.medicated = meds.includes(personId) ? meds.filter((x) => x !== personId) : [...meds, personId]
           }),
         ),
 
