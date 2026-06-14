@@ -353,6 +353,7 @@ export const useTripStore = create<TripStore>()(
             if (m) {
               m.date = date
               if (date && m.status === 'pending') m.status = 'scheduled'
+              if (!date && m.status === 'scheduled') m.status = 'pending'
               m.updatedAt = new Date().toISOString()
             }
           }),
