@@ -1,54 +1,54 @@
 @import 'tailwindcss';
 
 /* ============================================================
-   REED APPS — Patagonia "expedition" theme
-   Cold graphite, strong high-contrast type, the Fitz Roy sunset.
-   Built to feel rugged and bold, not soft.
+   REED APPS — Patagonia design system (warm cream)
+   Natural paper, the Fitz Roy sunset (indigo → blue → coral),
+   black peaks, a characterful serif display.
    ============================================================ */
 
 @theme {
-  /* "ice" ramp = TEXT ramp (light → muted) on dark graphite */
-  --color-ice-50: #f6f4ee;   /* headings — warm white */
-  --color-ice-100: #e4e0d6;  /* primary text */
-  --color-ice-200: #b4aea1;  /* strong secondary */
-  --color-ice-300: #807a6d;  /* muted text */
+  /* "ice" ramp is the TEXT ramp — warm charcoal → taupe on cream */
+  --color-ice-50: #20180f;   /* headings (warm near-black) */
+  --color-ice-100: #2c241b;  /* primary text */
+  --color-ice-200: #4b4234;  /* strong secondary */
+  --color-ice-300: #8a8071;  /* muted text / hairlines via opacity */
 
   /* Sunset BLUE accent (primary) */
-  --color-glacier-400: #6aa0ff;
-  --color-glacier-500: #4a86ef;
-  --color-glacier-600: #356fde;
+  --color-glacier-400: #4a72c0;
+  --color-glacier-500: #2f5db0;
+  --color-glacier-600: #244a8e;
   --color-deep-700: #2b3c84;
-  --color-deep-800: #211c4a;
+  --color-deep-800: #2a2560;
 
   /* Sunset CORAL accent */
-  --color-sand-300: #f5754a;
-  --color-sand-500: #e05f30;
+  --color-sand-300: #ef6a3d;
+  --color-sand-500: #d4552a;
 
-  /* Cold graphite backgrounds */
-  --color-night-900: #171b21;
-  --color-night-950: #0f1216;
-  --color-abyss: #06070a;
+  /* Warm paper backgrounds */
+  --color-night-900: #ece4d4;
+  --color-night-950: #f5efe3;
+  --color-abyss: #1b1533;    /* deep indigo — modal scrims */
 
-  /* Functional status (brighter for dark) */
-  --color-status-good: #34b178;
-  --color-status-good-soft: #11261d;
-  --color-status-warn: #e0a23a;
-  --color-status-warn-soft: #2c2310;
-  --color-status-bad: #ef5b46;
-  --color-status-bad-soft: #2e1410;
+  /* Functional status */
+  --color-status-good: #2f8f63;
+  --color-status-good-soft: #d8efe2;
+  --color-status-warn: #c8851f;
+  --color-status-warn-soft: #f6ead0;
+  --color-status-bad: #cf4a36;
+  --color-status-bad-soft: #f7ddd6;
 
   --font-display: 'Fraunces', 'Iowan Old Style', Georgia, serif;
   --font-sans: 'Satoshi', ui-sans-serif, system-ui, sans-serif;
 
-  --radius-xl: 0.85rem;
-  --radius-2xl: 1.1rem;
+  --radius-xl: 1.1rem;
+  --radius-2xl: 1.5rem;
 
-  --shadow-lift: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 14px 34px -18px rgba(0, 0, 0, 0.8);
-  --shadow-glow: 0 0 0 1px rgba(106, 160, 255, 0.12), 0 18px 44px -20px rgba(74, 134, 239, 0.5);
+  --shadow-lift: 0 1px 2px rgba(42, 30, 15, 0.05), 0 12px 26px -16px rgba(42, 30, 15, 0.20);
+  --shadow-glow: 0 1px 2px rgba(47, 93, 176, 0.12), 0 16px 36px -18px rgba(47, 93, 176, 0.4);
 }
 
 @layer base {
-  :root { color-scheme: dark; }
+  :root { color-scheme: light; }
 
   * { -webkit-tap-highlight-color: transparent; }
 
@@ -57,7 +57,6 @@
   body {
     margin: 0;
     font-family: var(--font-sans);
-    font-weight: 450;
     color: var(--color-ice-100);
     background-color: var(--color-night-950);
     -webkit-font-smoothing: antialiased;
@@ -67,8 +66,8 @@
 
   h1, h2, h3, h4 {
     font-family: var(--font-display);
-    font-weight: 700;
-    letter-spacing: -0.015em;
+    font-weight: 600;
+    letter-spacing: -0.01em;
     color: var(--color-ice-50);
     text-wrap: balance;
   }
@@ -84,41 +83,41 @@
 }
 
 @layer components {
-  /* App backdrop — cold graphite with faint sunset/altitude glow */
+  /* App backdrop — warm paper with the faintest sunset warmth */
   .alpine-backdrop {
     background-color: var(--color-night-950);
     background-image:
-      radial-gradient(120% 70% at 85% -10%, rgba(245, 117, 74, 0.10), transparent 55%),
-      radial-gradient(90% 60% at 0% 0%, rgba(74, 134, 239, 0.08), transparent 50%);
+      radial-gradient(120% 70% at 85% -10%, rgba(239, 106, 61, 0.10), transparent 55%),
+      radial-gradient(90% 60% at 0% 0%, rgba(47, 93, 176, 0.07), transparent 50%);
   }
 
   /* The iconic Fitz Roy sunset gradient — for hero bands */
   .sunset {
-    background: linear-gradient(170deg, #211c4a 0%, #2c2f72 26%, #2f5db0 50%, #c2547f 72%, #ef6a3d 100%);
+    background: linear-gradient(170deg, #2a2560 0%, #34357e 28%, #2f5db0 52%, #c85a8f 72%, #ef6a3d 100%);
   }
 
-  /* Workhorse surface — elevated graphite slab */
+  /* The workhorse surface — warm white card */
   .glass {
-    background: #171b21;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: #fffdf8;
+    border: 1px solid #ebe2d1;
     box-shadow: var(--shadow-lift);
   }
 
   /* Quiet fill (chips, inset rows) */
   .glass-soft {
-    background: #1d222b;
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: #f3ecde;
+    border: 1px solid #ebe2d1;
   }
 
-  /* Primary action — strong blue */
+  /* Primary action — confident sunset blue */
   .btn-glacier {
     background: linear-gradient(180deg, var(--color-glacier-500), var(--color-glacier-600));
-    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.18) inset, 0 10px 22px -10px rgba(53, 111, 222, 0.6);
-    color: #ffffff;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.15) inset, 0 8px 20px -10px rgba(36, 74, 142, 0.55);
+    color: #fffdf8;
   }
   .btn-glacier:active { transform: translateY(1px) scale(0.99); }
 
-  .hairline { border-color: rgba(255, 255, 255, 0.08); }
+  .hairline { border-color: #ebe2d1; }
 
   .num-chip {
     font-family: var(--font-display);
@@ -130,16 +129,7 @@
   .tap { min-height: 44px; }
 }
 
-/* Subtle grain for rugged texture */
-.grain::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  opacity: 0.04;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
+.grain::before { content: none; }
 
 @keyframes rise {
   from { opacity: 0; transform: translateY(12px); }

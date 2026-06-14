@@ -59,7 +59,7 @@ export function FoodPage() {
                   <p className="font-display text-[15px] leading-tight">{d.label}</p>
                   <p className="text-xs text-ice-300/55">{prettyShort(d.date)} · {d.menu.length} items · {ordered} ordered</p>
                 </div>
-                <span className="num-chip rounded-full bg-white/8 px-2.5 py-1 text-sm text-ice-200">{ordered}</span>
+                <span className="num-chip rounded-full bg-slate-100 px-2.5 py-1 text-sm text-ice-200">{ordered}</span>
               </button>
             )
           })}
@@ -155,7 +155,7 @@ function FoodDayView({ day, onBack }: { day: FoodDay; onBack: () => void }) {
                 >
                   <span className="num-chip grid h-12 w-12 shrink-0 place-items-center rounded-xl btn-glacier text-xl">{item.number}</span>
                   <span className="flex-1 font-display text-[17px] leading-tight">{item.name}</span>
-                  <span className="num-chip rounded-full bg-white/8 px-3 py-1 text-sm text-ice-200">{tally.get(item.id) ?? 0}</span>
+                  <span className="num-chip rounded-full bg-slate-100 px-3 py-1 text-sm text-ice-200">{tally.get(item.id) ?? 0}</span>
                 </button>
               ))}
             </div>
@@ -190,7 +190,7 @@ function FoodDayView({ day, onBack }: { day: FoodDay; onBack: () => void }) {
       {/* vendor view — counts only, clean for screenshot */}
       <Sheet open={vendorOpen} onClose={() => setVendorOpen(false)} title="For the restaurant">
         <div className="space-y-4 pt-1">
-          <div className="rounded-2xl border border-white/12 bg-white/5 p-5">
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
             <p className="text-center text-xs font-medium uppercase tracking-[0.15em] text-glacier-400">{trip.name} · {prettyShort(day.date)}</p>
             <p className="mb-4 text-center font-display text-xl">{day.label}</p>
             <div className="space-y-2.5">
@@ -242,7 +242,7 @@ function FoodDayView({ day, onBack }: { day: FoodDay; onBack: () => void }) {
                       <button key={p.id} onClick={() => pick(p.id)} className={cx('flex w-full items-center gap-3 rounded-2xl p-3 text-left', isThis ? 'glass-soft ring-1 ring-glacier-500/40' : 'opacity-70 hover:opacity-100')}>
                         <Avatar name={p.name} role={p.role} size={32} />
                         <span className="flex-1 text-[15px]">{p.name}</span>
-                        <span className="num-chip rounded-full bg-white/8 px-2 py-0.5 text-xs text-ice-300/70">#{curNo}</span>
+                        <span className="num-chip rounded-full bg-slate-100 px-2 py-0.5 text-xs text-ice-300/70">#{curNo}</span>
                       </button>
                     )
                   })}

@@ -182,7 +182,7 @@ export function OnboardingPage() {
           {steps.map((_, i) => (
             <span
               key={i}
-              className={`h-1 flex-1 rounded-full transition-all duration-300 ${i <= step ? 'bg-glacier-400' : 'bg-white/10'}`}
+              className={`h-1 flex-1 rounded-full transition-all duration-300 ${i <= step ? 'bg-glacier-400' : 'bg-slate-200/70'}`}
             />
           ))}
         </div>

@@ -175,7 +175,7 @@ function BusDayView({ day, onBack }: { day: BusDay; onBack: () => void }) {
                     onClick={() => onTapPerson(id)}
                     className={cx(
                       'flex w-full items-center gap-2 rounded-xl px-2 py-1.5 text-left transition-all',
-                      picked === id ? 'btn-glacier' : 'hover:bg-white/8',
+                      picked === id ? 'btn-glacier' : 'hover:bg-slate-100',
                     )}
                   >
                     <Avatar name={nameOf(id)} size={26} />

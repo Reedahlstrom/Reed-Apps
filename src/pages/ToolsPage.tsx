@@ -64,7 +64,7 @@ export function ToolsPage() {
                 <p className="font-display text-[15px] leading-tight">{tool.label}</p>
                 <p className="truncate text-xs text-ice-300/55">{tool.desc}</p>
               </div>
-              {badge && <span className="num-chip rounded-full bg-white/8 px-2.5 py-1 text-xs text-ice-200">{badge}</span>}
+              {badge && <span className="num-chip rounded-full bg-slate-100 px-2.5 py-1 text-xs text-ice-200">{badge}</span>}
               <ChevronRight size={18} className="shrink-0 text-ice-300/40" />
             </button>
           )

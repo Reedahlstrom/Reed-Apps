@@ -14,7 +14,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const buttonVariants: Record<ButtonVariant, string> = {
   primary: 'btn-glacier font-medium',
-  ghost: 'text-ice-200 hover:bg-white/8 border border-transparent',
+  ghost: 'text-ice-200 hover:bg-slate-100 border border-transparent',
   soft: 'glass-soft text-ice-100 hover:border-ice-300/30',
   danger: 'bg-status-bad/15 text-status-bad border border-status-bad/30 hover:bg-status-bad/25',
 }
@@ -53,7 +53,7 @@ export function IconButton({ icon: Icon, label, tone = 'default', className, ...
       aria-label={label}
       className={cx(
         'tap grid aspect-square w-11 place-items-center rounded-xl transition-all active:scale-95',
-        tone === 'danger' ? 'text-status-bad hover:bg-status-bad/15' : 'text-ice-200 hover:bg-white/8',
+        tone === 'danger' ? 'text-status-bad hover:bg-status-bad/15' : 'text-ice-200 hover:bg-slate-100',
         className,
       )}
       {...props}
@@ -79,7 +79,7 @@ export function Card({ className, children, onClick }: { className?: string; chi
 /* ---------------- Inputs ---------------- */
 
 const fieldBase =
-  'w-full rounded-xl bg-white/[0.06] border border-white/12 px-4 py-3 text-[16px] text-ice-50 ' +
+  'w-full rounded-xl bg-white border border-slate-200 px-4 py-3 text-[16px] text-ice-50 ' +
   'placeholder:text-ice-300/45 outline-none transition focus:border-glacier-500 focus:ring-4 focus:ring-glacier-500/10'
 
 export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(
@@ -111,7 +111,7 @@ export function Pill({ children, className, icon: Icon }: { children: ReactNode;
     <span
       className={cx(
         'inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium',
-        'border border-ice-300/15 bg-white/8 text-ice-200',
+        'border border-ice-300/15 bg-slate-100 text-ice-200',
         className,
       )}
     >

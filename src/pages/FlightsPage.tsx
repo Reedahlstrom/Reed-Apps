@@ -42,7 +42,7 @@ export function FlightsPage() {
 
       <div className="relative">
         <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ice-300/40" />
-        <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search names" className="w-full rounded-xl border border-white/12 bg-white/[0.06] py-3 pl-10 pr-4 text-[16px] text-ice-50 placeholder:text-ice-300/45 outline-none focus:border-glacier-500" />
+        <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search names" className="w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-4 text-[16px] text-ice-50 placeholder:text-ice-300/45 outline-none focus:border-glacier-500" />
       </div>
 
       {people.length === 0 ? (
@@ -81,11 +81,11 @@ export function FlightsPage() {
                   <div className="mt-3 flex items-end gap-2">
                     <label className="flex-1 space-y-1">
                       <span className="text-[11px] font-medium uppercase tracking-wider text-ice-300/60">Flight #</span>
-                      <input autoFocus value={code} onChange={(e) => setCode(e.target.value)} placeholder="e.g. LA841" autoCapitalize="characters" className="w-full rounded-lg border border-white/12 bg-white/[0.06] px-3 py-2 text-[16px] uppercase text-ice-50 placeholder:text-ice-300/45 placeholder:normal-case outline-none focus:border-glacier-500" onKeyDown={(e) => e.key === 'Enter' && submit(p.id)} />
+                      <input autoFocus value={code} onChange={(e) => setCode(e.target.value)} placeholder="e.g. LA841" autoCapitalize="characters" className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-[16px] uppercase text-ice-50 placeholder:text-ice-300/45 placeholder:normal-case outline-none focus:border-glacier-500" onKeyDown={(e) => e.key === 'Enter' && submit(p.id)} />
                     </label>
                     <label className="space-y-1">
                       <span className="text-[11px] font-medium uppercase tracking-wider text-ice-300/60">Date</span>
-                      <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="rounded-lg border border-white/12 bg-white/[0.06] px-2 py-2 text-[15px] text-ice-50 outline-none focus:border-glacier-500" />
+                      <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="rounded-lg border border-slate-200 bg-white px-2 py-2 text-[15px] text-ice-50 outline-none focus:border-glacier-500" />
                     </label>
                     <button onClick={() => submit(p.id)} className="tap grid w-11 shrink-0 place-items-center rounded-lg btn-glacier"><Plus size={18} /></button>
                   </div>

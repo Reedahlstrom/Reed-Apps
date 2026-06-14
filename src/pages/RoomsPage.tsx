@@ -127,7 +127,7 @@ export function RoomsPage() {
 
       <DragOverlay dropAnimation={null}>
         {activePerson ? (
-          <span className="flex items-center gap-1.5 rounded-full bg-night-900 py-1 pl-1 pr-3 text-sm shadow-xl ring-1 ring-glacier-500/50">
+          <span className="flex items-center gap-1.5 rounded-full bg-white py-1 pl-1 pr-3 text-sm shadow-lg ring-1 ring-glacier-500/30">
             <Avatar name={activePerson.name} role={activePerson.role} size={22} />{activePerson.name.split(' ')[0]}
           </span>
         ) : null}
