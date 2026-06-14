@@ -44,6 +44,7 @@ function newTrip(name: string, start: string, end: string, destination: string):
     devotionals: [],
     briefing: { vision: '', rules: '', expectations: '' },
     flights: [],
+    letters: [],
     onboarded: false,
     createdAt: now,
     updatedAt: now,
@@ -58,6 +59,7 @@ function ensureTripShape(t: Trip): Trip {
     devotionals: t.devotionals ?? [],
     briefing: t.briefing ?? { vision: '', rules: '', expectations: '' },
     flights: t.flights ?? [],
+    letters: t.letters ?? [],
     roomPlans: t.roomPlans ?? [],
     groupSets: t.groupSets ?? [],
     poopNights: t.poopNights ?? [],
@@ -155,6 +157,12 @@ interface TripStore extends AppData {
   // flights
   addFlight: (personId: string, code: string, date?: string, label?: string) => void
   removeFlight: (id: string) => void
+
+  // letters
+  toggleLetter: (personId: string) => void
+
+  // sync housekeeping — drop empty seed trips once a real (synced) trip exists
+  pruneEmptySeeds: () => void
 }
 
 /* ---------------- mutation helper ---------------- */
@@ -634,6 +642,24 @@ export const useTripStore = create<TripStore>()(
         ),
       removeFlight: (id) =>
         set((s) => mutateActive(s, (t) => void (t.flights = t.flights.filter((f) => f.id !== id)))),
+
+      /* letters */
+      toggleLetter: (personId) =>
+        set((s) =>
+          mutateActive(s, (t) => {
+            t.letters = t.letters.includes(personId) ? t.letters.filter((x) => x !== personId) : [...t.letters, personId]
+          }),
+        ),
+
+      /* sync housekeeping */
+      pruneEmptySeeds: () =>
+        set((s) => {
+          const isReal = (t: Trip) => t.onboarded || t.people.length > 0
+          if (!s.trips.some(isReal)) return {} // nothing real yet — keep the seed so onboarding works
+          const trips = s.trips.filter(isReal)
+          const activeTripId = trips.some((t) => t.id === s.activeTripId) ? s.activeTripId : trips[0].id
+          return { trips, activeTripId, rev: s.rev + 1 }
+        }),
     }),
     {
       name: 'reed-apps-trip-store',

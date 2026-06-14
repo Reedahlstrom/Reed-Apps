@@ -215,6 +215,8 @@ export interface Trip {
   devotionals: Devotional[]
   briefing: Briefing
   flights: Flight[]
+  /** personIds whose parent letter has been received (pre-trip checklist) */
+  letters: string[]
   onboarded: boolean
   createdAt: string
   updatedAt: string

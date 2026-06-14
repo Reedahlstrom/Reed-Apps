@@ -3,73 +3,80 @@ import { useTripStore } from '@/store/useTripStore'
 import { pullTrips, pushTrip, subscribeTrips } from '@/lib/sync'
 import type { Trip } from '@/types/domain'
 
+/** A trip with no roster and not onboarded is just the local default seed. */
+const isReal = (t: Trip) => t.onboarded || t.people.length > 0
+
 /**
- * Bridges the local store and Supabase once the user is signed in & allowed:
- *  1. Pull remote trips, merge newest-wins, then push any local-only/newer trips
- *     (so data entered offline today is never lost).
- *  2. Subscribe to realtime changes from the other leader's device.
- *  3. Debounce-push local mutations, skipping echoes of what we just received.
+ * Keeps the local store and Supabase in lockstep so both leaders work on ONE
+ * living trip:
+ *  - Pull first. Adopt remote trips, then prune the local empty seed so we never
+ *    end up with a duplicate "looks the same but isn't" trip.
+ *  - Push only REAL trips (never the empty seed) — newest-wins by updatedAt.
+ *  - Realtime + focus/visibility pulls keep it as live as possible.
  */
 export function SyncProvider({ active }: { active: boolean }) {
   useEffect(() => {
     if (!active) return
     const store = useTripStore
-    // updatedAt we last saw from the server per trip — used to suppress echoes.
-    const remoteStamp = new Map<string, string>()
+    const remoteStamp = new Map<string, string>() // last updatedAt seen from server, to suppress echoes
     let disposed = false
     let timer: ReturnType<typeof setTimeout> | null = null
 
-    const initial = async () => {
-      const remote = await pullTrips()
-      if (disposed || !remote) return
-      const local = store.getState().trips
-      const localById = new Map(local.map((t) => [t.id, t]))
-      // apply remote → local
-      for (const rt of remote) {
+    const adopt = (trips: Trip[]) => {
+      for (const rt of trips) {
         remoteStamp.set(rt.id, rt.updatedAt)
         store.getState().applyRemoteTrip(rt)
       }
-      // push local trips that are missing or newer remotely
+      store.getState().pruneEmptySeeds()
+    }
+
+    const pull = async () => {
+      const remote = await pullTrips()
+      if (disposed || !remote) return
+      adopt(remote)
+      // push real local trips that are missing remotely or newer than the server
       const remoteById = new Map(remote.map((t) => [t.id, t]))
-      for (const lt of localById.values()) {
+      for (const lt of store.getState().trips) {
+        if (!isReal(lt)) continue
         const rt = remoteById.get(lt.id)
         if (!rt || lt.updatedAt > rt.updatedAt) {
-          await pushTrip(lt)
-          remoteStamp.set(lt.id, lt.updatedAt)
+          if (await pushTrip(lt)) remoteStamp.set(lt.id, lt.updatedAt)
         }
       }
     }
 
-    const unsubRealtime = subscribeTrips((trip: Trip) => {
+    const unsubRealtime = subscribeTrips((trip) => {
       remoteStamp.set(trip.id, trip.updatedAt)
       store.getState().applyRemoteTrip(trip)
+      store.getState().pruneEmptySeeds()
     })
 
-    // push local changes (debounced)
+    // push local changes (debounced); never push the empty seed
     const unsubStore = store.subscribe((state) => {
       if (timer) clearTimeout(timer)
       timer = setTimeout(() => {
         for (const t of state.trips) {
-          if (remoteStamp.get(t.id) !== t.updatedAt) {
+          if (isReal(t) && remoteStamp.get(t.id) !== t.updatedAt) {
             remoteStamp.set(t.id, t.updatedAt)
             void pushTrip(t)
           }
         }
-      }, 800)
+      }, 500)
     })
 
-    // pull again on focus to catch anything missed while backgrounded
-    const onFocus = () => void initial()
-    window.addEventListener('focus', onFocus)
+    const onWake = () => { if (document.visibilityState === 'visible') void pull() }
+    window.addEventListener('focus', onWake)
+    document.addEventListener('visibilitychange', onWake)
 
-    void initial()
+    void pull()
 
     return () => {
       disposed = true
       if (timer) clearTimeout(timer)
       unsubRealtime()
       unsubStore()
-      window.removeEventListener('focus', onFocus)
+      window.removeEventListener('focus', onWake)
+      document.removeEventListener('visibilitychange', onWake)
     }
   }, [active])
 
