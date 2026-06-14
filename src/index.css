@@ -1,49 +1,50 @@
 @import 'tailwindcss';
 
 /* ============================================================
-   REED APPS — Clean light design system (blue)
-   White surfaces, soft borders + shadows, one strong blue accent.
+   REED APPS — Patagonia design system
+   Warm natural paper, the Fitz Roy sunset (indigo → blue → coral),
+   black peaks, a characterful serif display.
    ============================================================ */
 
 @theme {
-  /* "ice" ramp is now the TEXT ramp (dark → muted) on light surfaces */
-  --color-ice-50: #0f1b2e;   /* headings */
-  --color-ice-100: #1f2a3d;  /* primary text */
-  --color-ice-200: #3a4658;  /* strong secondary */
-  --color-ice-300: #6b7a90;  /* muted text / hairlines via opacity */
+  /* "ice" ramp is the TEXT ramp — warm charcoal → taupe on cream */
+  --color-ice-50: #20180f;   /* headings (warm near-black) */
+  --color-ice-100: #2c241b;  /* primary text */
+  --color-ice-200: #4b4234;  /* strong secondary */
+  --color-ice-300: #8a8071;  /* muted text / hairlines via opacity */
 
-  /* Blue accent */
-  --color-glacier-400: #3b82f6;
-  --color-glacier-500: #2563eb;
-  --color-glacier-600: #1d4ed8;
-  --color-deep-700: #1d4ed8;
-  --color-deep-800: #1e3a8a;
+  /* Sunset BLUE accent (primary) — "glacier" kept as the token name */
+  --color-glacier-400: #4a72c0;
+  --color-glacier-500: #2f5db0;
+  --color-glacier-600: #244a8e;
+  --color-deep-700: #2b3c84;   /* indigo */
+  --color-deep-800: #2a2560;   /* deep indigo / sky top */
 
-  /* Light backgrounds */
-  --color-night-900: #e9eff7;
-  --color-night-950: #f2f6fc;
-  --color-abyss: #0b1220;    /* stays dark — used for modal scrims */
+  /* Sunset CORAL accent — "sand" kept as the token name */
+  --color-sand-300: #ef6a3d;
+  --color-sand-500: #d4552a;
+
+  /* Warm paper backgrounds */
+  --color-night-900: #ece4d4;
+  --color-night-950: #f5efe3;
+  --color-abyss: #1b1533;    /* deep indigo — modal scrims */
 
   /* Functional status */
-  --color-status-good: #16a34a;
-  --color-status-good-soft: #dcfce7;
-  --color-status-warn: #d97706;
-  --color-status-warn-soft: #fef3c7;
-  --color-status-bad: #dc2626;
-  --color-status-bad-soft: #fee2e2;
+  --color-status-good: #2f8f63;
+  --color-status-good-soft: #d8efe2;
+  --color-status-warn: #c8851f;
+  --color-status-warn-soft: #f6ead0;
+  --color-status-bad: #cf4a36;
+  --color-status-bad-soft: #f7ddd6;
 
-  /* Warm secondary accent (sparingly) */
-  --color-sand-300: #b9852f;
-  --color-sand-500: #a06a1f;
-
-  --font-display: 'Clash Display', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Fraunces', 'Iowan Old Style', Georgia, serif;
   --font-sans: 'Satoshi', ui-sans-serif, system-ui, sans-serif;
 
   --radius-xl: 1.1rem;
   --radius-2xl: 1.5rem;
 
-  --shadow-lift: 0 1px 2px rgba(15, 23, 42, 0.04), 0 10px 24px -16px rgba(15, 23, 42, 0.14);
-  --shadow-glow: 0 1px 2px rgba(37, 99, 235, 0.10), 0 14px 34px -18px rgba(37, 99, 235, 0.35);
+  --shadow-lift: 0 1px 2px rgba(42, 30, 15, 0.05), 0 12px 26px -16px rgba(42, 30, 15, 0.20);
+  --shadow-glow: 0 1px 2px rgba(47, 93, 176, 0.12), 0 16px 36px -18px rgba(47, 93, 176, 0.4);
 }
 
 @layer base {
@@ -66,7 +67,7 @@
   h1, h2, h3, h4 {
     font-family: var(--font-display);
     font-weight: 600;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.01em;
     color: var(--color-ice-50);
     text-wrap: balance;
   }
@@ -82,47 +83,58 @@
 }
 
 @layer components {
-  /* App backdrop — clean light with the faintest blue lift */
+  /* App backdrop — warm paper with the faintest sunset warmth */
   .alpine-backdrop {
     background-color: var(--color-night-950);
     background-image:
-      radial-gradient(120% 80% at 85% -10%, rgba(59, 130, 246, 0.10), transparent 55%),
-      radial-gradient(90% 60% at 0% 0%, rgba(37, 99, 235, 0.05), transparent 50%);
+      radial-gradient(120% 70% at 85% -10%, rgba(239, 106, 61, 0.10), transparent 55%),
+      radial-gradient(90% 60% at 0% 0%, rgba(47, 93, 176, 0.07), transparent 50%);
   }
 
-  /* The workhorse surface — a crisp white card */
+  /* The iconic Fitz Roy sunset gradient — for hero bands */
+  .sunset {
+    background: linear-gradient(
+      170deg,
+      #2a2560 0%,
+      #34357e 28%,
+      #2f5db0 52%,
+      #c85a8f 72%,
+      #ef6a3d 100%
+    );
+  }
+
+  /* The workhorse surface — warm white card */
   .glass {
-    background: #ffffff;
-    border: 1px solid #e7eef6;
+    background: #fffdf8;
+    border: 1px solid #ebe2d1;
     box-shadow: var(--shadow-lift);
   }
 
   /* Quiet fill (chips, inset rows) */
   .glass-soft {
-    background: #f4f8fd;
-    border: 1px solid #e7eef6;
+    background: #f3ecde;
+    border: 1px solid #ebe2d1;
   }
 
-  /* Primary action — solid confident blue */
+  /* Primary action — confident sunset blue */
   .btn-glacier {
     background: linear-gradient(180deg, var(--color-glacier-500), var(--color-glacier-600));
-    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.15) inset, 0 8px 20px -10px rgba(37, 99, 235, 0.55);
-    color: #ffffff;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.15) inset, 0 8px 20px -10px rgba(36, 74, 142, 0.55);
+    color: #fffdf8;
   }
   .btn-glacier:active { transform: translateY(1px) scale(0.99); }
 
-  .hairline { border-color: #e7eef6; }
+  .hairline { border-color: #ebe2d1; }
 
   .num-chip {
     font-family: var(--font-display);
     font-variant-numeric: tabular-nums;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.01em;
   }
 
   .tap { min-height: 44px; }
 }
 
-/* Grain disabled in the light theme — kept as a no-op so .grain usages are safe */
 .grain::before { content: none; }
 
 @keyframes rise {

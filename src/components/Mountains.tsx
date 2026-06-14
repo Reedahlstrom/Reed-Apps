@@ -1,47 +1,49 @@
 import { cx } from '@/lib/cx'
 
+const RIDGE =
+  'M0 252 L70 214 L104 244 L150 168 L196 226 L250 150 L292 200 L350 112 L398 168 L470 44 ' +
+  'L516 140 L558 96 L602 156 L660 84 L706 150 L780 132 L838 96 L900 166 L968 128 L1052 186 L1130 150 L1200 196'
+
 /**
- * Clean single-line white mountain outline — used along the bottom of the
- * auth / onboarding / launcher screens.
+ * Fitz Roy range silhouette (à la the Patagonia mark): jagged needle peaks,
+ * with an optional white ridge outline for use over the sunset gradient.
  */
-export function Mountains({ className }: { className?: string }) {
+export function FitzRoy({
+  className,
+  fill = '#171109',
+  outline = false,
+}: {
+  className?: string
+  fill?: string
+  outline?: boolean
+}) {
   return (
     <svg
       className={cx('pointer-events-none w-full', className)}
-      viewBox="0 0 1200 240"
+      viewBox="0 0 1200 320"
       fill="none"
       preserveAspectRatio="xMidYMax slice"
       aria-hidden
     >
-      <path
-        d="M0 224 L150 150 L250 192 L430 92 L520 150 L700 60 L840 150 L960 104 L1120 176 L1200 140"
-        stroke="#2563eb"
-        strokeOpacity="0.45"
-        strokeWidth="2.5"
-        strokeLinejoin="round"
-        strokeLinecap="round"
-        vectorEffect="non-scaling-stroke"
-      />
+      <path d={`M0 320 L0 252 ${RIDGE.slice(1)} L1200 320 Z`} fill={fill} />
+      {outline && (
+        <path d={RIDGE} stroke="#fffdf8" strokeOpacity="0.92" strokeWidth="3.5" strokeLinejoin="round" strokeLinecap="round" />
+      )}
     </svg>
   )
 }
 
-/** Faint topographic contour texture for card/section backgrounds. */
-export function TopoLines({ className }: { className?: string }) {
+/** Bottom-of-page decoration on the warm paper background. */
+export function Mountains({ className }: { className?: string }) {
+  return <FitzRoy className={className} fill="#2a2560" />
+}
+
+/** Sunset hero band with the black peaks rising into it (the iconic composition). */
+export function SunsetHero({ className, children }: { className?: string; children?: React.ReactNode }) {
   return (
-    <svg
-      className={cx('pointer-events-none absolute inset-0 h-full w-full', className)}
-      aria-hidden
-      preserveAspectRatio="xMidYMid slice"
-      viewBox="0 0 400 400"
-    >
-      <g fill="none" stroke="#97c1ea" strokeWidth="1" opacity="0.08">
-        <path d="M-20 120 C60 80 140 160 220 120 S380 80 460 130" />
-        <path d="M-20 160 C60 120 140 200 220 160 S380 120 460 170" />
-        <path d="M-20 200 C60 160 140 240 220 200 S380 160 460 210" />
-        <path d="M-20 240 C60 200 140 280 220 240 S380 200 460 250" />
-        <path d="M-20 280 C60 240 140 320 220 280 S380 240 460 290" />
-      </g>
-    </svg>
+    <div className={cx('sunset relative overflow-hidden', className)}>
+      {children}
+      <FitzRoy className="absolute inset-x-0 bottom-0 h-1/2" fill="#120d07" outline />
+    </div>
   )
 }
