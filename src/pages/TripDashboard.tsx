@@ -56,7 +56,7 @@ export function TripDashboard() {
       {/* hero — sunset band with Fitz Roy peaks */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
         <SunsetHero className="rounded-2xl shadow-[var(--shadow-lift)]">
-          <div className="relative z-10 px-5 pb-16 pt-5">
+          <div className="relative z-10 px-5 pb-28 pt-5">
             <p className="text-sm text-white/70">{firstName ? `Hi ${firstName} —` : 'Welcome —'}</p>
             <h1 className="mt-0.5 font-display text-4xl leading-tight text-white">
               {dayNo ? `Day ${dayNo}` : prettyDay(today)}
