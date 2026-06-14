@@ -73,7 +73,7 @@ function CommitteeRow({ committee: c, open, onToggle }: { committee: Committee; 
           <p className="font-display text-[15px] leading-tight">{c.name}</p>
           {c.purpose && <p className="truncate text-xs text-ice-300/55">{c.purpose}</p>}
         </div>
-        <span className="num-chip rounded-full bg-slate-100 px-2 py-0.5 text-xs text-ice-200">{members.length}</span>
+        <span className="num-chip rounded-full bg-white/8 px-2 py-0.5 text-xs text-ice-200">{members.length}</span>
         <ChevronDown size={18} className={cx('text-ice-300/50 transition-transform', open && 'rotate-180')} />
       </button>
 

@@ -178,6 +178,19 @@ export interface PoopNight {
   createdAt: string
 }
 
+/* ---------------- Flights ---------------- */
+
+export interface Flight {
+  id: string
+  personId: string
+  /** Flight number, e.g. "LA841" */
+  code: string
+  /** ISO date of the flight (optional) */
+  date?: string
+  /** "Arrival" / "Return" / free note */
+  label?: string
+}
+
 /* ---------------- Trip ---------------- */
 
 export interface TripMeta {
@@ -201,6 +214,7 @@ export interface Trip {
   committees: Committee[]
   devotionals: Devotional[]
   briefing: Briefing
+  flights: Flight[]
   onboarded: boolean
   createdAt: string
   updatedAt: string

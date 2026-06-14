@@ -55,7 +55,7 @@ export function Sheet({
               <button
                 aria-label="Close"
                 onClick={onClose}
-                className="tap -mr-2 grid aspect-square w-10 place-items-center rounded-xl text-ice-300/70 hover:bg-slate-100"
+                className="tap -mr-2 grid aspect-square w-10 place-items-center rounded-xl text-ice-300/70 hover:bg-white/8"
               >
                 <X size={20} />
               </button>

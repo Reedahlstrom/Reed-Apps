@@ -43,6 +43,7 @@ function newTrip(name: string, start: string, end: string, destination: string):
     committees: [],
     devotionals: [],
     briefing: { vision: '', rules: '', expectations: '' },
+    flights: [],
     onboarded: false,
     createdAt: now,
     updatedAt: now,
@@ -56,6 +57,7 @@ function ensureTripShape(t: Trip): Trip {
     committees: t.committees ?? [],
     devotionals: t.devotionals ?? [],
     briefing: t.briefing ?? { vision: '', rules: '', expectations: '' },
+    flights: t.flights ?? [],
     roomPlans: t.roomPlans ?? [],
     groupSets: t.groupSets ?? [],
     poopNights: t.poopNights ?? [],
@@ -149,6 +151,10 @@ interface TripStore extends AppData {
   removeDevotional: (id: string) => void
   toggleDevotionalDone: (id: string) => void
   setBriefing: (patch: Partial<Briefing>) => void
+
+  // flights
+  addFlight: (personId: string, code: string, date?: string, label?: string) => void
+  removeFlight: (id: string) => void
 }
 
 /* ---------------- mutation helper ---------------- */
@@ -618,6 +624,16 @@ export const useTripStore = create<TripStore>()(
         ),
       setBriefing: (patch) =>
         set((s) => mutateActive(s, (t) => void Object.assign(t.briefing, patch))),
+
+      /* flights */
+      addFlight: (personId, code, date, label) =>
+        set((s) =>
+          mutateActive(s, (t) => {
+            if (code.trim()) t.flights.push({ id: uid('fl'), personId, code: code.trim().toUpperCase().replace(/\s+/g, ''), date, label })
+          }),
+        ),
+      removeFlight: (id) =>
+        set((s) => mutateActive(s, (t) => void (t.flights = t.flights.filter((f) => f.id !== id)))),
     }),
     {
       name: 'reed-apps-trip-store',

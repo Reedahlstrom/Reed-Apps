@@ -12,6 +12,7 @@ import {
   ChevronRight,
   Shield,
   BookOpen,
+  Plane,
   type LucideIcon,
 } from 'lucide-react'
 import { PageHeader } from '@/components/PageHeader'
@@ -33,6 +34,7 @@ const TOOLS: Tool[] = [
   { to: '/trip/groups', label: 'Groups', desc: 'Auto-balanced random groups', icon: Boxes, count: (t) => (t?.groupSets.length ? `${t.groupSets.length} sets` : undefined) },
   { to: '/trip/committees', label: 'Committees', desc: 'Crews, responsibilities & notes', icon: Shield, count: (t) => (t?.committees.length ? `${t.committees.length}` : undefined) },
   { to: '/trip/devotionals', label: 'Devotionals', desc: 'Briefing, morning & night devos', icon: BookOpen, count: (t) => (t?.devotionals.length ? `${t.devotionals.length}` : undefined) },
+  { to: '/trip/flights', label: 'Flights', desc: 'Everyone’s flight numbers, live status', icon: Plane, count: (t) => (t?.flights.length ? `${t.flights.length}` : undefined) },
   { to: '/trip/poop', label: 'Health Tracker', desc: 'Daily bowel-movement check', icon: Activity },
   { to: '/trip/notes', label: 'Notes', desc: 'Reminders, contacts, important info', icon: NotebookPen, count: (t) => (t?.notes.length ? `${t.notes.length}` : undefined) },
   { to: '/trip/people', label: 'Roster', desc: 'Everyone on the trip', icon: Users2, count: (t) => (t?.people.length ? `${t.people.length}` : undefined) },
@@ -62,7 +64,7 @@ export function ToolsPage() {
                 <p className="font-display text-[15px] leading-tight">{tool.label}</p>
                 <p className="truncate text-xs text-ice-300/55">{tool.desc}</p>
               </div>
-              {badge && <span className="num-chip rounded-full bg-slate-100 px-2.5 py-1 text-xs text-ice-200">{badge}</span>}
+              {badge && <span className="num-chip rounded-full bg-white/8 px-2.5 py-1 text-xs text-ice-200">{badge}</span>}
               <ChevronRight size={18} className="shrink-0 text-ice-300/40" />
             </button>
           )

@@ -41,9 +41,9 @@ export function FitzRoy({
   )
 }
 
-/** Bottom-of-page decoration on the warm paper background. */
+/** Bottom-of-page decoration on the dark graphite background. */
 export function Mountains({ className }: { className?: string }) {
-  return <FitzRoy className={className} fill="#2a2560" />
+  return <FitzRoy className={className} fill="#1c2230" />
 }
 
 /** Sunset hero band with the black peaks rising into it (the iconic composition). */

@@ -162,7 +162,7 @@ function InviteCard({ tripId, tripName }: { tripId: string; tripName: string }) 
       </div>
       {link ? (
         <div className="space-y-2">
-          <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-ice-200 break-all">{link}</div>
+          <div className="rounded-xl border border-white/12 bg-white/5 px-3 py-2.5 text-sm text-ice-200 break-all">{link}</div>
           <div className="flex gap-2">
             <Button full variant="soft" icon={copied ? Check : Copy} onClick={copy}>{copied ? 'Copied' : 'Copy link'}</Button>
             {typeof navigator !== 'undefined' && 'share' in navigator && <Button icon={Share2} onClick={share} aria-label="Share" />}

@@ -49,7 +49,7 @@ export function MeetingsPage() {
     <div className="space-y-5 pt-2">
       <PageHeader title="2-on-1 Meetings" subtitle={`${doneCount} of ${builders.length} done`} icon={MessagesSquare} />
 
-      <div className="h-2 overflow-hidden rounded-full bg-slate-200/70">
+      <div className="h-2 overflow-hidden rounded-full bg-white/10">
         <div className="h-full bg-status-good transition-all" style={{ width: `${(doneCount / Math.max(1, builders.length)) * 100}%` }} />
       </div>
 
@@ -71,7 +71,7 @@ export function MeetingsPage() {
                 onClick={() => setDayOpen(iso)}
                 className={cx(
                   'flex aspect-square flex-col items-center justify-center gap-0.5 rounded-xl text-sm transition-all active:scale-95',
-                  on.length ? 'glass-soft' : 'hover:bg-slate-100',
+                  on.length ? 'glass-soft' : 'hover:bg-white/8',
                   isToday && 'ring-2 ring-glacier-500/60',
                 )}
               >
@@ -138,7 +138,7 @@ export function MeetingsPage() {
                   className="glass flex items-center justify-between rounded-xl p-3 text-left active:scale-[0.98]"
                 >
                   <span><span className="num-chip text-ice-100">{weekday(iso)} {dayNum(iso)}</span></span>
-                  {count > 0 && <span className="num-chip rounded-full bg-slate-100 px-2 text-xs text-ice-300/60">{count}</span>}
+                  {count > 0 && <span className="num-chip rounded-full bg-white/8 px-2 text-xs text-ice-300/60">{count}</span>}
                 </button>
               )
             })}
