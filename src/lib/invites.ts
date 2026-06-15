@@ -1,5 +1,6 @@
 import { getSupabase } from './supabase'
 import { useTripStore } from '@/store/useTripStore'
+import { UUID_RE } from '@/lib/id'
 import type { Trip } from '@/types/domain'
 
 /** Short, unambiguous invite code (no O/0/I/1). */
@@ -25,6 +26,30 @@ export async function createInvite(tripId: string): Promise<string | null> {
     return null
   }
   return code
+}
+
+/** The trip's shareable code — reuses an existing one or makes one. */
+export async function getOrCreateTripCode(tripId: string): Promise<string | null> {
+  const sb = getSupabase()
+  if (!sb || !UUID_RE.test(tripId)) return null // not signed-in / not synced yet
+  const { data } = await sb.from('trip_invites').select('code').eq('trip_id', tripId).limit(1)
+  if (data && data.length) return data[0].code as string
+  return createInvite(tripId)
+}
+
+export interface TripPeek {
+  trip_id: string
+  name: string
+  people: number
+}
+
+/** Look up a trip by code WITHOUT joining — to confirm before joining. */
+export async function peekInvite(code: string): Promise<TripPeek | null> {
+  const sb = getSupabase()
+  if (!sb) return null
+  const { data, error } = await sb.rpc('peek_invite', { invite_code: code.trim().toUpperCase() })
+  if (error || !data) return null
+  return data as TripPeek
 }
 
 /**

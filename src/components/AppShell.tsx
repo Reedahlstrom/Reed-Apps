@@ -25,7 +25,7 @@ export function AppShell() {
       <header className="pt-safe sticky top-0 z-30 px-4 pb-3 backdrop-blur-xl">
         <div className="mx-auto flex max-w-md items-center justify-between">
           <button onClick={() => navigate('/')} className="text-left">
-            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-glacier-400">Reed Apps</p>
+            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-glacier-400">supergoodtripleaders</p>
             <p className="font-display text-xl leading-tight">{trip?.name ?? 'Trip Leader'}</p>
           </button>
           <div className="flex items-center gap-2">

@@ -21,6 +21,7 @@ export function AuthGate({ children }: { children: ReactNode }) {
   const [offline, setOffline] = useState(() => localStorage.getItem(OFFLINE_KEY) === '1')
   const [session, setSession] = useState<Session | null>(null)
   const [loaded, setLoaded] = useState(false)
+  const navigate = useNavigate()
 
   const [mode, setMode] = useState<'signin' | 'signup'>('signin')
   const [email, setEmail] = useState('')
@@ -52,7 +53,10 @@ export function AuthGate({ children }: { children: ReactNode }) {
     setBusy(true)
     const res = mode === 'signin' ? await signIn(email, password) : await signUp(email, password)
     setBusy(false)
-    if (!res.ok) setError(res.error ?? 'Something went wrong.')
+    if (!res.ok) { setError(res.error ?? 'Something went wrong.'); return }
+    // Drop straight into the trip (→ onboarding for new leaders). A pending
+    // invite is handled by PendingInviteRedeemer instead.
+    if (!localStorage.getItem('pending_invite')) navigate('/trip', { replace: true })
   }
 
   const goOffline = () => { localStorage.setItem(OFFLINE_KEY, '1'); setOffline(true) }

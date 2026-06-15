@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Settings, CalendarRange, Check, Plus, Trash2, Luggage, ChevronRight, UserPlus, Copy, Share2, Cloud, CloudOff, LogOut, Loader2 } from 'lucide-react'
+import { Settings, CalendarRange, Check, Plus, Trash2, Luggage, ChevronRight, UserPlus, Copy, Cloud, CloudOff, LogOut, KeyRound } from 'lucide-react'
 import { PageHeader } from '@/components/PageHeader'
 import { Sheet } from '@/components/Sheet'
+import { JoinByCode } from '@/components/JoinByCode'
 import { Button, Input, Field, Card } from '@/components/ui'
 import { useActiveTrip, useTripStore } from '@/store/useTripStore'
 import { prettyDay, todayISO, todayPlusISO } from '@/lib/dates'
 import { isSupabaseConfigured } from '@/lib/supabase'
 import { fetchMemberCount } from '@/lib/collab'
-import { createInvite, inviteLink } from '@/lib/invites'
+import { getOrCreateTripCode } from '@/lib/invites'
 import { currentUserEmail, signOut } from '@/lib/auth'
 
 export function SettingsPage() {
@@ -126,39 +127,35 @@ export function SettingsPage() {
 
 /* ---------------- invite a co-leader to THIS trip ---------------- */
 
-function InviteCard({ tripId, tripName }: { tripId: string; tripName: string }) {
-  const [link, setLink] = useState<string | null>(null)
-  const [busy, setBusy] = useState(false)
+function InviteCard({ tripId }: { tripId: string; tripName: string }) {
+  const navigate = useNavigate()
+  const [code, setCode] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
   const [members, setMembers] = useState<number | null>(null)
+  const [joinOpen, setJoinOpen] = useState(false)
 
   useEffect(() => {
-    if (isSupabaseConfigured) fetchMemberCount(tripId).then(setMembers)
+    const offline = localStorage.getItem('reed-offline') === '1'
+    if (isSupabaseConfigured && !offline) {
+      getOrCreateTripCode(tripId).then(setCode)
+      fetchMemberCount(tripId).then(setMembers)
+    }
   }, [tripId])
 
   if (!isSupabaseConfigured) {
     return (
       <Card className="space-y-1 p-4">
         <p className="flex items-center gap-2 font-display text-[15px]"><UserPlus size={17} className="text-glacier-500" /> Invite your co-leader</p>
-        <p className="text-sm text-ice-300/60">Sign in (top of the app) to create a share link for this trip.</p>
+        <p className="text-sm text-ice-300/60">Sign in (top of the app) to get a code to share for this trip.</p>
       </Card>
     )
   }
 
-  const make = async () => {
-    setBusy(true)
-    const code = await createInvite(tripId)
-    setBusy(false)
-    if (code) setLink(inviteLink(code))
-  }
   const copy = async () => {
-    if (!link) return
-    await navigator.clipboard.writeText(link).catch(() => {})
+    if (!code) return
+    await navigator.clipboard.writeText(code).catch(() => {})
     setCopied(true)
     setTimeout(() => setCopied(false), 1500)
-  }
-  const share = async () => {
-    if (link && navigator.share) await navigator.share({ title: `Join ${tripName}`, url: link }).catch(() => {})
   }
 
   return (
@@ -167,23 +164,29 @@ function InviteCard({ tripId, tripName }: { tripId: string; tripName: string }) 
         <span className="grid h-9 w-9 place-items-center rounded-xl glass-soft text-glacier-500"><UserPlus size={18} /></span>
         <div className="flex-1">
           <p className="font-display text-[15px] leading-tight">Invite your co-leader</p>
-          <p className="text-xs text-ice-300/55">Send a link — they join this exact trip, live</p>
+          <p className="text-xs text-ice-300/55">Share this code — they enter it to join, live</p>
         </div>
         {members != null && members > 1 && <span className="rounded-full bg-status-good/15 px-2.5 py-1 text-xs text-status-good">{members} on it</span>}
       </div>
 
-      {link ? (
-        <div className="space-y-2">
-          <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-ice-200 break-all">{link}</div>
-          <div className="flex gap-2">
-            <Button full variant="soft" icon={copied ? Check : Copy} onClick={copy}>{copied ? 'Copied' : 'Copy link'}</Button>
-            {typeof navigator !== 'undefined' && 'share' in navigator && <Button icon={Share2} onClick={share} aria-label="Share" />}
-          </div>
-          <p className="text-center text-xs text-ice-300/45">They open the link, make a quick login, and they’re in {tripName}.</p>
+      <div className="rounded-2xl border border-glacier-500/30 bg-glacier-500/5 py-4 text-center">
+        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-ice-300/55">Trip code</p>
+        <p className="mt-1 font-display text-3xl tracking-[0.25em] text-ice-50">{code ?? '· · · ·'}</p>
+      </div>
+
+      <Button full variant="soft" icon={copied ? Check : Copy} onClick={copy} disabled={!code}>{copied ? 'Copied' : 'Copy code'}</Button>
+      <p className="text-center text-xs text-ice-300/45">Your co-leader taps “Join with a code” when they set up, and enters this.</p>
+
+      <button onClick={() => setJoinOpen(true)} className="flex w-full items-center justify-center gap-1.5 pt-1 text-sm text-glacier-500">
+        <KeyRound size={14} /> Join another trip with a code
+      </button>
+
+      <Sheet open={joinOpen} onClose={() => setJoinOpen(false)} title="Join a trip">
+        <div className="space-y-3 pt-1">
+          <p className="text-sm text-ice-300/60">Enter the code your co-leader shared.</p>
+          <JoinByCode onJoined={() => { setJoinOpen(false); navigate('/trip', { replace: true }) }} />
         </div>
-      ) : (
-        <Button full icon={busy ? Loader2 : UserPlus} onClick={make} disabled={busy} className={busy ? '[&_svg]:animate-spin' : ''}>{busy ? 'Creating…' : 'Create invite link'}</Button>
-      )}
+      </Sheet>
     </Card>
   )
 }

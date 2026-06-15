@@ -20,7 +20,7 @@ import type {
   RoomPlan,
   Trip,
 } from '@/types/domain'
-import { uid } from '@/lib/id'
+import { uid, uuid, UUID_RE } from '@/lib/id'
 import { todayISO, todayPlusISO } from '@/lib/dates'
 import { generateBusPods, generateGroups } from '@/lib/algorithms'
 
@@ -29,7 +29,7 @@ import { generateBusPods, generateGroups } from '@/lib/algorithms'
 function newTrip(name: string, start: string, end: string, destination: string): Trip {
   const now = new Date().toISOString()
   return {
-    id: uid('trip'),
+    id: uuid(),
     name,
     meta: { startDate: start, endDate: end, destination },
     people: [],
@@ -673,7 +673,19 @@ export const useTripStore = create<TripStore>()(
         if (!state) return
         // Backfill any fields added since the trip was created.
         state.trips = state.trips.map(ensureTripShape)
-        // First run: seed a default Trip 1 so the app always has an active trip.
+        // Trip ids MUST be UUIDs (the Postgres trips.id column). Migrate any
+        // old "trip_…" ids to real UUIDs so they can sync, and keep activeTripId.
+        const remap = new Map<string, string>()
+        state.trips = state.trips.map((t) => {
+          if (UUID_RE.test(t.id)) return t
+          const id = uuid()
+          remap.set(t.id, id)
+          return { ...t, id }
+        })
+        if (state.activeTripId && remap.has(state.activeTripId)) {
+          state.activeTripId = remap.get(state.activeTripId)!
+        }
+        // First run: seed a default trip so the app always has an active one.
         if (state.trips.length === 0) {
           const trip = defaultTrip()
           state.trips = [trip]

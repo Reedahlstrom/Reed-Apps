@@ -1,9 +1,11 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Mountain, ArrowRight, ArrowLeft, User, UserCog, Users2, Tent, Check, CalendarRange } from 'lucide-react'
+import { Mountain, ArrowRight, ArrowLeft, User, UserCog, Users2, Tent, Check, CalendarRange, Plus, KeyRound } from 'lucide-react'
 import { Mountains } from '@/components/Mountains'
 import { Intro } from '@/components/Intro'
+import { Sheet } from '@/components/Sheet'
+import { JoinByCode } from '@/components/JoinByCode'
 import { Button, Input, Textarea, Field } from '@/components/ui'
 import { Avatar } from '@/components/Avatar'
 import { useActiveTrip, useTripStore } from '@/store/useTripStore'
@@ -26,16 +28,17 @@ export function OnboardingPage() {
   const setOnboarded = useTripStore((s) => s.setOnboarded)
 
   const [intro, setIntro] = useState(true)
+  const [joinOpen, setJoinOpen] = useState(false)
   const [step, setStep] = useState(0)
   const [dir, setDir] = useState(1)
   const [leader, setLeader] = useState('')
   const [coleader, setColeader] = useState('')
   const [parents, setParents] = useState('')
   const [builders, setBuilders] = useState('')
-  const [tripName, setTripName] = useState(trip?.name ?? 'Trip 1')
-  const [start, setStart] = useState(trip?.meta.startDate ?? '2026-06-15')
-  const [end, setEnd] = useState(trip?.meta.endDate ?? '2026-07-01')
-  const [destination, setDestination] = useState(trip?.meta.destination ?? 'Patagonia & Concepción, Chile')
+  const [tripName, setTripName] = useState(trip?.name ?? 'My Trip')
+  const [start, setStart] = useState(trip?.meta.startDate ?? '')
+  const [end, setEnd] = useState(trip?.meta.endDate ?? '')
+  const [destination, setDestination] = useState(trip?.meta.destination ?? '')
 
   const parentList = useMemo(() => parseNames(parents), [parents])
   const builderList = useMemo(() => parseNames(builders), [builders])
@@ -58,17 +61,41 @@ export function OnboardingPage() {
   }
 
   const steps = [
-    // 0 — welcome
+    // 0 — choose: new trip or join with a code
     {
       valid: true,
       body: (
         <div className="flex flex-col items-center text-center">
-          <span className="grid h-16 w-16 place-items-center rounded-3xl glass text-glacier-400">
+          <span className="grid h-16 w-16 place-items-center rounded-3xl glass text-glacier-500">
             <Mountain size={30} strokeWidth={1.8} />
           </span>
-          <h1 className="mt-6 font-display text-4xl leading-[1.02]">Let's set up<br />your trip.</h1>
+          <h1 className="mt-6 font-display text-4xl leading-[1.02]">Let's get<br />you set up.</h1>
           <p className="mt-3 max-w-xs text-[15px] text-ice-300/70">
-            A quiet command center for the logistics so nothing slips while you're in the field. First, who's coming.
+            Start your own trip, or join the one your co-leader already made.
+          </p>
+
+          <div className="mt-8 w-full space-y-3 text-left">
+            <button onClick={() => go(1)} className="glass flex w-full items-center gap-3.5 rounded-2xl p-4 active:scale-[0.99]">
+              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl btn-glacier"><Plus size={22} /></span>
+              <div className="flex-1">
+                <p className="font-display text-[15px] leading-tight">Start a new trip</p>
+                <p className="text-xs text-ice-300/55">Build your roster from scratch</p>
+              </div>
+              <ArrowRight size={18} className="text-ice-300/40" />
+            </button>
+
+            <button onClick={() => setJoinOpen(true)} className="glass flex w-full items-center gap-3.5 rounded-2xl p-4 active:scale-[0.99]">
+              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl glass-soft text-glacier-500"><KeyRound size={20} /></span>
+              <div className="flex-1">
+                <p className="font-display text-[15px] leading-tight">Join with a code</p>
+                <p className="text-xs text-ice-300/55">Your co already started it</p>
+              </div>
+              <ArrowRight size={18} className="text-ice-300/40" />
+            </button>
+          </div>
+
+          <p className="mt-4 max-w-xs text-xs text-ice-300/50">
+            If your co-leader already created the trip, ask them for the code in their <span className="text-ice-200">Settings</span>.
           </p>
         </div>
       ),
@@ -216,18 +243,27 @@ export function OnboardingPage() {
           </motion.div>
         </AnimatePresence>
 
-        {/* nav */}
-        <div className="pb-safe sticky bottom-0 flex items-center gap-3 bg-gradient-to-t from-night-950 to-transparent py-5">
-          {step > 0 && <Button variant="soft" icon={ArrowLeft} onClick={() => go(step - 1)} aria-label="Back" />}
-          {isLast ? (
-            <Button full icon={Check} onClick={finish}>Enter trip</Button>
-          ) : (
-            <Button full disabled={!current.valid} onClick={() => go(step + 1)}>
-              Continue <ArrowRight size={18} />
-            </Button>
-          )}
-        </div>
+        {/* nav — hidden on the choice step (its buttons live in the body) */}
+        {step > 0 && (
+          <div className="pb-safe sticky bottom-0 flex items-center gap-3 bg-gradient-to-t from-night-950 to-transparent py-5">
+            <Button variant="soft" icon={ArrowLeft} onClick={() => go(step - 1)} aria-label="Back" />
+            {isLast ? (
+              <Button full icon={Check} onClick={finish}>Enter trip</Button>
+            ) : (
+              <Button full disabled={!current.valid} onClick={() => go(step + 1)}>
+                Continue <ArrowRight size={18} />
+              </Button>
+            )}
+          </div>
+        )}
       </div>
+
+      <Sheet open={joinOpen} onClose={() => setJoinOpen(false)} title="Join a trip">
+        <div className="space-y-3 pt-1">
+          <p className="text-sm text-ice-300/60">Enter the code your co-leader shared. It’s in their <span className="text-ice-200">Settings</span>.</p>
+          <JoinByCode onJoined={() => navigate('/trip', { replace: true })} />
+        </div>
+      </Sheet>
 
       <Mountains className="absolute inset-x-0 bottom-0 h-40 opacity-60" />
     </div>
