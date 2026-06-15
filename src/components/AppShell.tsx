@@ -1,9 +1,20 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
-import { CalendarDays, CloudOff, Cloud, LayoutGrid, UtensilsCrossed, Users, Activity, Boxes } from 'lucide-react'
+import { CalendarDays, CloudOff, Cloud, RefreshCw, LayoutGrid, UtensilsCrossed, Users, Activity, Boxes } from 'lucide-react'
 import { cx } from '@/lib/cx'
 import { useActiveTrip } from '@/store/useTripStore'
 import { isSupabaseConfigured } from '@/lib/supabase'
+import { useSyncStatus } from '@/sync/status'
 import { prettyShort, todayISO, tripDayNumber } from '@/lib/dates'
+
+function SyncBadge() {
+  const state = useSyncStatus((s) => s.state)
+  if (!isSupabaseConfigured) {
+    return <span title="Offline on this device" className="grid h-8 w-8 place-items-center rounded-full glass-soft text-ice-300/50"><CloudOff size={15} /></span>
+  }
+  if (state === 'saving') return <span title="Saving…" className="grid h-8 w-8 place-items-center rounded-full glass-soft text-glacier-500"><RefreshCw size={14} className="animate-spin" /></span>
+  if (state === 'offline') return <span title="Offline — changes will sync when you're back" className="grid h-8 w-8 place-items-center rounded-full glass-soft text-status-warn"><CloudOff size={15} /></span>
+  return <span title="Saved & synced" className="grid h-8 w-8 place-items-center rounded-full glass-soft text-status-good"><Cloud size={15} /></span>
+}
 
 const NAV = [
   { to: '/trip', label: 'Today', icon: LayoutGrid, end: true },
@@ -33,15 +44,7 @@ export function AppShell() {
               <CalendarDays size={13} className="text-glacier-400" />
               {dayNo ? `Day ${dayNo}` : prettyShort(today)}
             </span>
-            <span
-              title={isSupabaseConfigured ? 'Synced' : 'Offline — saved on this device'}
-              className={cx(
-                'grid h-8 w-8 place-items-center rounded-full glass-soft',
-                isSupabaseConfigured ? 'text-status-good' : 'text-ice-300/50',
-              )}
-            >
-              {isSupabaseConfigured ? <Cloud size={15} /> : <CloudOff size={15} />}
-            </span>
+            <SyncBadge />
           </div>
         </div>
       </header>

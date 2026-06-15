@@ -24,6 +24,7 @@ import type {
 import { uid, uuid, UUID_RE } from '@/lib/id'
 import { todayISO, todayPlusISO } from '@/lib/dates'
 import { generateBusPods, generateGroups } from '@/lib/algorithms'
+import { mergeTrips } from '@/lib/merge'
 
 /* ---------------- factories ---------------- */
 
@@ -220,10 +221,12 @@ export const useTripStore = create<TripStore>()(
       setOnboarded: (v) => set((s) => mutateActive(s, (t) => void (t.onboarded = v))),
       applyRemoteTrip: (incoming) =>
         set((s) => {
-          const existing = s.trips.find((t) => t.id === incoming.id)
-          if (existing && existing.updatedAt >= incoming.updatedAt) return {}
           const shaped = ensureTripShape(incoming)
-          const trips = existing ? s.trips.map((t) => (t.id === incoming.id ? shaped : t)) : [...s.trips, shaped]
+          const existing = s.trips.find((t) => t.id === incoming.id)
+          // MERGE (union) rather than overwrite, so a remote update can never
+          // wipe local edits that haven't synced yet.
+          const result = existing ? mergeTrips(existing, shaped) : shaped
+          const trips = existing ? s.trips.map((t) => (t.id === incoming.id ? result : t)) : [...s.trips, shaped]
           return { trips, activeTripId: s.activeTripId ?? shaped.id, rev: s.rev + 1 }
         }),
 

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Mountain, ArrowRight, ArrowLeft, User, UserCog, Users2, Tent, Check, CalendarRange, Plus, KeyRound } from 'lucide-react'
@@ -27,8 +27,14 @@ export function OnboardingPage() {
   const renameTrip = useTripStore((s) => s.renameTrip)
   const setOnboarded = useTripStore((s) => s.setOnboarded)
 
-  const [intro, setIntro] = useState(true)
+  const [intro, setIntro] = useState(() => !trip?.onboarded)
   const [joinOpen, setJoinOpen] = useState(false)
+
+  // If the active trip is already set up (e.g. synced from another device, or
+  // joined via a code), don't sit on onboarding — go straight to the trip.
+  useEffect(() => {
+    if (trip?.onboarded) navigate('/trip', { replace: true })
+  }, [trip?.onboarded, navigate])
   const [step, setStep] = useState(0)
   const [dir, setDir] = useState(1)
   const [leader, setLeader] = useState('')
