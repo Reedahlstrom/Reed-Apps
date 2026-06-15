@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { HeartHandshake, Plus, Check, Trash2, Sparkles, HandHeart, Undo2 } from 'lucide-react'
+import { HeartHandshake, Plus, Check, Trash2, Sparkles, HandHeart, Undo2, Search, X, UserPlus } from 'lucide-react'
 import { PageHeader } from '@/components/PageHeader'
 import { Sheet } from '@/components/Sheet'
 import { Button, Textarea, Field, Segmented, EmptyState, IconButton } from '@/components/ui'
@@ -21,6 +21,7 @@ export function PrayerPage() {
   const [kind, setKind] = useState<PrayerKind>('prayer')
   const [text, setText] = useState('')
   const [personId, setPersonId] = useState<string | undefined>(undefined)
+  const [personQuery, setPersonQuery] = useState('')
 
   const list = useMemo(() => {
     if (!trip) return []
@@ -37,7 +38,7 @@ export function PrayerPage() {
     if (text.trim()) addPrayer(kind, text, personId)
     setText(''); setPersonId(undefined); setAdding(false)
   }
-  const openAdd = (k: PrayerKind) => { setKind(k); setText(''); setPersonId(undefined); setAdding(true) }
+  const openAdd = (k: PrayerKind) => { setKind(k); setText(''); setPersonId(undefined); setPersonQuery(''); setAdding(true) }
 
   return (
     <div className="space-y-4 pt-2">
@@ -88,15 +89,34 @@ export function PrayerPage() {
           <Field label={kind === 'prayer' ? 'What to pray for' : 'The encouragement'}>
             <Textarea autoFocus rows={3} value={text} onChange={(e) => setText(e.target.value)} placeholder={kind === 'prayer' ? 'e.g. Maddie’s grandma is in the hospital' : 'e.g. Joshua led the worksite cleanup unprompted'} />
           </Field>
-          <Field label="About someone? (optional)">
-            <div className="flex flex-wrap gap-1.5">
-              <button onClick={() => setPersonId(undefined)} className={cx('rounded-full px-3 py-1.5 text-sm', !personId ? 'btn-glacier' : 'glass-soft text-ice-200')}>No one</button>
-              {trip.people.map((p) => (
-                <button key={p.id} onClick={() => setPersonId(p.id)} className={cx('flex items-center gap-1.5 rounded-full py-1 pl-1 pr-2.5 text-sm', personId === p.id ? 'btn-glacier' : 'glass-soft text-ice-200')}>
-                  <Avatar name={p.name} role={p.role} size={20} />{p.name.split(' ')[0]}
+          <Field label="Who's it about? (optional)">
+            {personOf(personId) ? (
+              <div className="flex items-center gap-2.5 rounded-xl glass-soft p-2.5">
+                <Avatar name={personOf(personId)!.name} role={personOf(personId)!.role} size={32} />
+                <span className="flex-1 font-medium">{personOf(personId)!.name}</span>
+                <button onClick={() => { setPersonId(undefined); setPersonQuery('') }} className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-sm text-ice-300/70 hover:text-status-bad">
+                  <X size={15} /> Change
                 </button>
-              ))}
-            </div>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <div className="relative">
+                  <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ice-300/40" />
+                  <input value={personQuery} onChange={(e) => setPersonQuery(e.target.value)} placeholder="Tap a name to tag them" className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-[16px] text-ice-50 placeholder:text-ice-300/45 outline-none focus:border-glacier-500" />
+                </div>
+                <div className="no-scrollbar max-h-44 space-y-1 overflow-y-auto">
+                  {trip.people
+                    .filter((p) => p.name.toLowerCase().includes(personQuery.trim().toLowerCase()))
+                    .map((p) => (
+                      <button key={p.id} onClick={() => setPersonId(p.id)} className="flex w-full items-center gap-2.5 rounded-xl p-2 text-left hover:bg-slate-100 active:scale-[0.99]">
+                        <Avatar name={p.name} role={p.role} size={30} />
+                        <span className="flex-1 text-[15px]">{p.name}</span>
+                        <UserPlus size={15} className="text-glacier-500" />
+                      </button>
+                    ))}
+                </div>
+              </div>
+            )}
           </Field>
         </div>
       </Sheet>
