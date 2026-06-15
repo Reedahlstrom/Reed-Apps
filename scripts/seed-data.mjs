@@ -72,6 +72,11 @@ export function seedPayload() {
     people, foodDays: [foodDay], busDays, committees, devotionals, briefing,
     meetings: builders.map((b, i) => ({ personId: b.id, status: i < 3 ? 'done' : i < 5 ? 'scheduled' : 'pending', date: i >= 3 && i < 5 ? '2026-06-20' : undefined, followUps: i === 3 ? [{ id: 'fu1', text: 'Check in about homesickness', done: false }] : [], updatedAt: now })),
     notes, roomPlans: [{ phase: 'first', rooms }], groupSets, poopNights,
+    prayers: [
+      { id: 'pr1', kind: 'prayer', text: 'Maddie’s grandma is in the hospital back home', personId: builders[0].id, done: false, createdAt: now },
+      { id: 'pr2', kind: 'shoutout', text: 'Joshua led the worksite cleanup unprompted', personId: builders[1].id, done: false, createdAt: now },
+      { id: 'pr3', kind: 'prayer', text: 'Safe travels for the drive to Concepción', done: true, createdAt: now },
+    ],
     onboarded: true, createdAt: now, updatedAt: now,
   }
   return JSON.stringify({ state: { trips: [trip], activeTripId: 'trip_demo', rev: 1 }, version: 1 })

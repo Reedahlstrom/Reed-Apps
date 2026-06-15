@@ -14,6 +14,7 @@ import type {
   NoteCategory,
   Person,
   PoopNight,
+  PrayerKind,
   Role,
   Room,
   RoomPhase,
@@ -45,6 +46,7 @@ function newTrip(name: string, start: string, end: string, destination: string):
     briefing: { vision: '', rules: '', expectations: '' },
     flights: [],
     letters: [],
+    prayers: [],
     onboarded: false,
     createdAt: now,
     updatedAt: now,
@@ -60,6 +62,7 @@ function ensureTripShape(t: Trip): Trip {
     briefing: t.briefing ?? { vision: '', rules: '', expectations: '' },
     flights: t.flights ?? [],
     letters: t.letters ?? [],
+    prayers: t.prayers ?? [],
     roomPlans: t.roomPlans ?? [],
     groupSets: t.groupSets ?? [],
     poopNights: t.poopNights ?? [],
@@ -160,6 +163,11 @@ interface TripStore extends AppData {
 
   // letters
   toggleLetter: (personId: string) => void
+
+  // prayers & shout-outs
+  addPrayer: (kind: PrayerKind, text: string, personId?: string) => void
+  togglePrayerDone: (id: string) => void
+  removePrayer: (id: string) => void
 
   // sync housekeeping — drop empty seed trips once a real (synced) trip exists
   pruneEmptySeeds: () => void
@@ -650,6 +658,23 @@ export const useTripStore = create<TripStore>()(
             t.letters = t.letters.includes(personId) ? t.letters.filter((x) => x !== personId) : [...t.letters, personId]
           }),
         ),
+
+      /* prayers & shout-outs */
+      addPrayer: (kind, text, personId) =>
+        set((s) =>
+          mutateActive(s, (t) => {
+            if (text.trim()) t.prayers.unshift({ id: uid('pr'), kind, text: text.trim(), personId, done: false, createdAt: new Date().toISOString() })
+          }),
+        ),
+      togglePrayerDone: (id) =>
+        set((s) =>
+          mutateActive(s, (t) => {
+            const p = t.prayers.find((x) => x.id === id)
+            if (p) p.done = !p.done
+          }),
+        ),
+      removePrayer: (id) =>
+        set((s) => mutateActive(s, (t) => void (t.prayers = t.prayers.filter((p) => p.id !== id)))),
 
       /* sync housekeeping */
       pruneEmptySeeds: () =>

@@ -17,6 +17,7 @@ import { CommitteesPage } from '@/pages/CommitteesPage'
 import { DevotionalsPage } from '@/pages/DevotionalsPage'
 import { FlightsPage } from '@/pages/FlightsPage'
 import { LettersPage } from '@/pages/LettersPage'
+import { PrayerPage } from '@/pages/PrayerPage'
 import { PeoplePage } from '@/pages/PeoplePage'
 import { SettingsPage } from '@/pages/SettingsPage'
 import { RequireOnboarded } from '@/components/RequireOnboarded'
@@ -58,6 +59,7 @@ export function App() {
           <Route path="devotionals" element={<DevotionalsPage />} />
           <Route path="flights" element={<FlightsPage />} />
           <Route path="letters" element={<LettersPage />} />
+          <Route path="prayers" element={<PrayerPage />} />
           <Route path="people" element={<PeoplePage />} />
           <Route path="settings" element={<SettingsPage />} />
         </Route>

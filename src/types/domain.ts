@@ -191,6 +191,21 @@ export interface Flight {
   label?: string
 }
 
+/* ---------------- Prayer requests & shout-outs ---------------- */
+
+export type PrayerKind = 'prayer' | 'shoutout'
+
+export interface PrayerItem {
+  id: string
+  kind: PrayerKind
+  text: string
+  /** Who it's about / from (optional) */
+  personId?: string
+  /** Prayer answered / shout-out shared */
+  done: boolean
+  createdAt: string
+}
+
 /* ---------------- Trip ---------------- */
 
 export interface TripMeta {
@@ -217,6 +232,7 @@ export interface Trip {
   flights: Flight[]
   /** personIds whose parent letter has been received (pre-trip checklist) */
   letters: string[]
+  prayers: PrayerItem[]
   onboarded: boolean
   createdAt: string
   updatedAt: string

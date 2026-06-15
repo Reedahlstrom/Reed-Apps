@@ -14,6 +14,7 @@ import {
   BookOpen,
   Plane,
   Mail,
+  HeartHandshake,
   type LucideIcon,
 } from 'lucide-react'
 import { PageHeader } from '@/components/PageHeader'
@@ -35,6 +36,7 @@ const TOOLS: Tool[] = [
   { to: '/trip/groups', label: 'Groups', desc: 'Auto-balanced random groups', icon: Boxes, count: (t) => (t?.groupSets.length ? `${t.groupSets.length} sets` : undefined) },
   { to: '/trip/committees', label: 'Committees', desc: 'Crews, responsibilities & notes', icon: Shield, count: (t) => (t?.committees.length ? `${t.committees.length}` : undefined) },
   { to: '/trip/devotionals', label: 'Devotionals', desc: 'Briefing, morning & night devos', icon: BookOpen, count: (t) => (t?.devotionals.length ? `${t.devotionals.length}` : undefined) },
+  { to: '/trip/prayers', label: 'Prayer & Praise', desc: 'Requests & shout-outs for devo', icon: HeartHandshake, count: (t) => { const n = t?.prayers.filter((p) => !p.done).length; return n ? `${n}` : undefined } },
   { to: '/trip/flights', label: 'Flights', desc: 'Everyone’s flight numbers, live status', icon: Plane, count: (t) => (t?.flights.length ? `${t.flights.length}` : undefined) },
   { to: '/trip/letters', label: 'Letters', desc: 'Pre-trip: who turned in their letter', icon: Mail, count: (t) => (t?.letters.length ? `${t.letters.length}` : undefined) },
   { to: '/trip/poop', label: 'Health Tracker', desc: 'Daily bowel-movement check', icon: Activity },
