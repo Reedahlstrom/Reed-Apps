@@ -21,7 +21,7 @@ import type {
   Trip,
 } from '@/types/domain'
 import { uid } from '@/lib/id'
-import { todayISO } from '@/lib/dates'
+import { todayISO, todayPlusISO } from '@/lib/dates'
 import { generateBusPods, generateGroups } from '@/lib/algorithms'
 
 /* ---------------- factories ---------------- */
@@ -67,8 +67,8 @@ function ensureTripShape(t: Trip): Trip {
 }
 
 function defaultTrip(): Trip {
-  // Trip 1 dates per the itinerary; editable in onboarding.
-  return newTrip('Trip 1', '2026-06-15', '2026-07-01', 'Patagonia & Concepción, Chile')
+  // Generic starter — every leader sets their own in onboarding.
+  return newTrip('My Trip', todayISO(), todayPlusISO(14), '')
 }
 
 /* ---------------- store shape ---------------- */
@@ -694,7 +694,7 @@ export function useActiveTrip(): Trip | null {
 export function ensureSeed(): void {
   const s = useTripStore.getState()
   if (s.trips.length === 0) {
-    s.createTrip('Trip 1', '2026-06-15', '2026-07-01', 'Patagonia & Concepción, Chile')
+    s.createTrip('My Trip', todayISO(), todayPlusISO(14), '')
   } else if (!s.activeTripId) {
     s.setActiveTrip(s.trips[0].id)
   }

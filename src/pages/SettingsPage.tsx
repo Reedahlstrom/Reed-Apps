@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Settings, CalendarRange, Check, Plus, Trash2, Luggage, ChevronRight, Users, Copy, Share2, Cloud, CloudOff, LogOut } from 'lucide-react'
+import { Settings, CalendarRange, Check, Plus, Trash2, Luggage, ChevronRight, UserPlus, Copy, Share2, Cloud, CloudOff, LogOut, Loader2 } from 'lucide-react'
 import { PageHeader } from '@/components/PageHeader'
 import { Sheet } from '@/components/Sheet'
 import { Button, Input, Field, Card } from '@/components/ui'
 import { useActiveTrip, useTripStore } from '@/store/useTripStore'
-import { prettyDay } from '@/lib/dates'
+import { prettyDay, todayISO, todayPlusISO } from '@/lib/dates'
 import { isSupabaseConfigured } from '@/lib/supabase'
-import { fetchCollaborators } from '@/lib/collab'
+import { fetchMemberCount } from '@/lib/collab'
+import { createInvite, inviteLink } from '@/lib/invites'
 import { currentUserEmail, signOut } from '@/lib/auth'
 
 export function SettingsPage() {
@@ -34,8 +35,8 @@ export function SettingsPage() {
   }
 
   const startFresh = () => {
-    // Default the next trip to the second window; onboard a clean roster.
-    const id = createTrip('Trip 2', '2026-07-01', '2026-07-16', 'Patagonia & Concepción, Chile')
+    // A clean new trip — onboard a fresh roster.
+    const id = createTrip('New Trip', todayISO(), todayPlusISO(14), '')
     setActiveTrip(id)
     setNewOpen(false)
     navigate('/trip/onboarding', { replace: true })
@@ -67,8 +68,8 @@ export function SettingsPage() {
       {/* account / sync */}
       <AccountCard />
 
-      {/* collaborators — shared live */}
-      <InviteCard />
+      {/* invite a co-leader to this trip */}
+      <InviteCard tripId={trip.id} tripName={trip.name} />
 
       {/* trips list */}
       <div className="space-y-2">
@@ -123,64 +124,66 @@ export function SettingsPage() {
   )
 }
 
-/* ---------------- collaborators (shared live) ---------------- */
+/* ---------------- invite a co-leader to THIS trip ---------------- */
 
-function InviteCard() {
-  const [people, setPeople] = useState<{ email: string; label: string | null }[] | null>(null)
+function InviteCard({ tripId, tripName }: { tripId: string; tripName: string }) {
+  const [link, setLink] = useState<string | null>(null)
+  const [busy, setBusy] = useState(false)
   const [copied, setCopied] = useState(false)
-  const appUrl = typeof window !== 'undefined' ? window.location.origin : ''
+  const [members, setMembers] = useState<number | null>(null)
 
   useEffect(() => {
-    if (isSupabaseConfigured) fetchCollaborators().then(setPeople)
-  }, [])
+    if (isSupabaseConfigured) fetchMemberCount(tripId).then(setMembers)
+  }, [tripId])
 
   if (!isSupabaseConfigured) {
     return (
       <Card className="space-y-1 p-4">
-        <p className="flex items-center gap-2 font-display text-[15px]"><Users size={17} className="text-glacier-500" /> Collaborators</p>
-        <p className="text-sm text-ice-300/60">Sign in (top of the app) to share this trip live with your co-leader.</p>
+        <p className="flex items-center gap-2 font-display text-[15px]"><UserPlus size={17} className="text-glacier-500" /> Invite your co-leader</p>
+        <p className="text-sm text-ice-300/60">Sign in (top of the app) to create a share link for this trip.</p>
       </Card>
     )
   }
 
+  const make = async () => {
+    setBusy(true)
+    const code = await createInvite(tripId)
+    setBusy(false)
+    if (code) setLink(inviteLink(code))
+  }
   const copy = async () => {
-    await navigator.clipboard.writeText(appUrl).catch(() => {})
+    if (!link) return
+    await navigator.clipboard.writeText(link).catch(() => {})
     setCopied(true)
     setTimeout(() => setCopied(false), 1500)
   }
   const share = async () => {
-    if (navigator.share) await navigator.share({ title: 'Trip Leader', url: appUrl }).catch(() => {})
+    if (link && navigator.share) await navigator.share({ title: `Join ${tripName}`, url: link }).catch(() => {})
   }
 
   return (
     <Card className="space-y-3 p-4">
       <div className="flex items-center gap-2">
-        <span className="grid h-9 w-9 place-items-center rounded-xl glass-soft text-glacier-500"><Users size={18} /></span>
-        <div>
-          <p className="font-display text-[15px] leading-tight">Collaborators</p>
-          <p className="text-xs text-ice-300/55">Everyone here works on the same live trip</p>
+        <span className="grid h-9 w-9 place-items-center rounded-xl glass-soft text-glacier-500"><UserPlus size={18} /></span>
+        <div className="flex-1">
+          <p className="font-display text-[15px] leading-tight">Invite your co-leader</p>
+          <p className="text-xs text-ice-300/55">Send a link — they join this exact trip, live</p>
         </div>
+        {members != null && members > 1 && <span className="rounded-full bg-status-good/15 px-2.5 py-1 text-xs text-status-good">{members} on it</span>}
       </div>
 
-      {people && people.length > 0 && (
-        <div className="space-y-1.5">
-          {people.map((c) => (
-            <div key={c.email} className="flex items-center gap-2.5 rounded-xl glass-soft px-3 py-2">
-              <span className="grid h-7 w-7 place-items-center rounded-full bg-status-good/15 text-status-good"><Check size={14} /></span>
-              <div className="min-w-0">
-                <p className="truncate text-sm">{c.label || c.email}</p>
-                {c.label && <p className="truncate text-xs text-ice-300/50">{c.email}</p>}
-              </div>
-            </div>
-          ))}
+      {link ? (
+        <div className="space-y-2">
+          <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-ice-200 break-all">{link}</div>
+          <div className="flex gap-2">
+            <Button full variant="soft" icon={copied ? Check : Copy} onClick={copy}>{copied ? 'Copied' : 'Copy link'}</Button>
+            {typeof navigator !== 'undefined' && 'share' in navigator && <Button icon={Share2} onClick={share} aria-label="Share" />}
+          </div>
+          <p className="text-center text-xs text-ice-300/45">They open the link, make a quick login, and they’re in {tripName}.</p>
         </div>
+      ) : (
+        <Button full icon={busy ? Loader2 : UserPlus} onClick={make} disabled={busy} className={busy ? '[&_svg]:animate-spin' : ''}>{busy ? 'Creating…' : 'Create invite link'}</Button>
       )}
-
-      <div className="flex gap-2">
-        <Button full variant="soft" icon={copied ? Check : Copy} onClick={copy}>{copied ? 'Copied link' : 'Copy app link'}</Button>
-        {typeof navigator !== 'undefined' && 'share' in navigator && <Button icon={Share2} onClick={share} aria-label="Share" />}
-      </div>
-      <p className="text-center text-xs text-ice-300/45">Your co-leader signs in with their email and sees this exact trip — live.</p>
     </Card>
   )
 }

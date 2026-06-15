@@ -4,6 +4,7 @@ import {
   isValid,
   parseISO,
   differenceInCalendarDays,
+  addDays,
 } from 'date-fns'
 
 /** yyyy-mm-dd for "today" in the user's local timezone. */
@@ -13,6 +14,11 @@ export function todayISO(): string {
 
 export function toISO(date: Date): string {
   return format(date, 'yyyy-MM-dd')
+}
+
+/** ISO date n days from today. */
+export function todayPlusISO(n: number): string {
+  return format(addDays(new Date(), n), 'yyyy-MM-dd')
 }
 
 export function parse(iso: string): Date {

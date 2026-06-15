@@ -1,15 +1,12 @@
 import { getSupabase } from './supabase'
 
-export interface Collaborator {
-  email: string
-  label: string | null
-}
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
-/** Who is allowed to sign in and see the shared trips (the email allowlist). */
-export async function fetchCollaborators(): Promise<Collaborator[] | null> {
+/** How many people (owner + invited co-leaders) have access to this trip. */
+export async function fetchMemberCount(tripId: string): Promise<number | null> {
   const sb = getSupabase()
-  if (!sb) return null
-  const { data, error } = await sb.from('allowed_emails').select('email, label').order('added_at')
+  if (!sb || !UUID.test(tripId)) return null // not synced yet / demo seed
+  const { count, error } = await sb.from('trip_members').select('*', { count: 'exact', head: true }).eq('trip_id', tripId)
   if (error) return null
-  return data as Collaborator[]
+  return count ?? 0
 }

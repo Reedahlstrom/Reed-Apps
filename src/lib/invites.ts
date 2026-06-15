@@ -43,6 +43,7 @@ export async function redeemInvite(code: string): Promise<string | null> {
   if (row?.data) {
     useTripStore.getState().applyRemoteTrip(row.data as Trip)
     useTripStore.getState().setActiveTrip(tripId as string)
+    useTripStore.getState().pruneEmptySeeds() // drop the joiner's empty starter trip
   }
   return tripId as string
 }
