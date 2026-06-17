@@ -10,6 +10,8 @@ import {
   MapPin,
   Pin,
   StickyNote,
+  NotebookPen,
+  Plus,
   type LucideIcon,
 } from 'lucide-react'
 import { useActiveTrip, useTripStore } from '@/store/useTripStore'
@@ -142,14 +144,14 @@ export function TripDashboard() {
         </div>
       </div>
 
-      {/* notes — pinned first, so you see them on open */}
-      {dashNotes.length > 0 && (
-        <div className="space-y-2">
-          <div className="flex items-center justify-between px-1">
-            <p className="text-xs font-medium uppercase tracking-wider text-ice-300/60">Notes</p>
-            <button onClick={() => navigate('/trip/notes')} className="text-xs text-glacier-500">All</button>
-          </div>
-          {dashNotes.map((n) => (
+      {/* notes — always visible; pinned first so you see them on open */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between px-1">
+          <p className="text-xs font-medium uppercase tracking-wider text-ice-300/60">Notes</p>
+          <button onClick={() => navigate('/trip/notes')} className="text-xs text-glacier-500">All</button>
+        </div>
+        {dashNotes.length > 0 ? (
+          dashNotes.map((n) => (
             <button key={n.id} onClick={() => navigate('/trip/notes')} className="glass flex w-full items-start gap-3 rounded-2xl p-3.5 text-left active:scale-[0.99]">
               <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg glass-soft text-glacier-500">
                 {n.pinned ? <Pin size={15} /> : <StickyNote size={15} />}
@@ -160,9 +162,18 @@ export function TripDashboard() {
                 {n.category === 'contact' && n.phone && <p className="mt-1 text-sm text-status-good">{n.phone}</p>}
               </div>
             </button>
-          ))}
-        </div>
-      )}
+          ))
+        ) : (
+          <button onClick={() => navigate('/trip/notes')} className="glass flex w-full items-center gap-3 rounded-2xl p-4 text-left active:scale-[0.99]">
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg glass-soft text-glacier-500"><NotebookPen size={17} /></span>
+            <div className="flex-1">
+              <p className="font-medium leading-tight">Notes &amp; reminders</p>
+              <p className="text-xs text-ice-300/55">Jot contacts, reminders, important info</p>
+            </div>
+            <Plus size={18} className="text-ice-300/40" />
+          </button>
+        )}
+      </div>
     </div>
   )
 }
